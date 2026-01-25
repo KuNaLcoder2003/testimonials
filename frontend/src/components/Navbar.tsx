@@ -62,7 +62,7 @@ const Navbar: React.FC = () => {
                     <div onClick={() => setisUserOpen(!isUserOpen)} className="hidden lg:flex items-center justify-center w-12 h-12 rounded-full bg-blue-200 cursor-pointer relative">
                         <User2Icon />
                         {
-                            isUserOpen && <div className="absolute top-15 w-36 h-auto p-4 shadow-lg z-999 rounded-lg">
+                            isUserOpen && <div className="absolute top-15 w-36 h-auto p-4 shadow-lg z-999 rounded-lg bg-white">
                                 {
                                     isLoggedIn ? <div className="flex flex-col items-baseline gap-2">
                                         {
@@ -114,14 +114,14 @@ const Navbar: React.FC = () => {
                                 onClick={() => setisUserOpen(!isUserOpen)}
                                 className="relative flex items-center gap-3 cursor-pointer"
                             >
-                                {/* User Icon */}
+
                                 <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-200">
                                     <User2Icon />
                                 </div>
 
-                                {/* User Dropdown */}
+
                                 {isUserOpen && (
-                                    <div className="absolute top-14 left-0 w-44 rounded-xl bg-white shadow-xl border border-gray-100 p-3 z-50">
+                                    <div className="absolute top-14 left-0 w-44 rounded-xl bg-white shadow-xl border border-gray-100 p-3 z-50 bg-white">
                                         {isLoggedIn ? (
                                             <div className="flex flex-col gap-2">
                                                 {userLinks.map(item => (
