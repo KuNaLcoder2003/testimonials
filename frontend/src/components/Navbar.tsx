@@ -44,9 +44,9 @@ const Navbar: React.FC = () => {
     const [isUserOpen, setisUserOpen] = useState<boolean>(false)
     const [isOpen, setIsOpen] = useState<boolean>(false)
     return (
-        <div className="w-screen flex items-center justify-center fixed top-5 z-[99999] bg-white">
+        <div className="w-full fixed top-0 z-[99999] bg-white px-3">
             <div className="w-full">
-                <div className="w-full lg:w-4xl m-auto p-2 px-4 rouded-lg shadow-lg flex items-center justify-between rounded-lg">
+                <div className="w-screen lg:max-w-7xl m-auto p-3 shadow-lg flex items-center justify-between rounded-lg">
                     <div className="">
                         <h2 className="text-xl font-semibold"><span className="text-blue-500 underline">Easy</span><span className="underline">Monials</span></h2>
                     </div>
@@ -92,8 +92,8 @@ const Navbar: React.FC = () => {
                 </div>
                 {
                     isOpen && <motion.div
-                        initial={{ y: -100 }}
-                        whileInView={{ y: 0 }}
+                        initial={{ y: -20, opacity: 0 }}
+                        whileInView={{ y: 0, opacity: 1 }}
                         exit={{ y: 10 }}
                         transition={{ duration: 0.5, delay: 0.1 }}
                         style={{
