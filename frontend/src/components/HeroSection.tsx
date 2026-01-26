@@ -36,7 +36,7 @@ const HeroSection: React.FC = () => {
 
 
                 <p className="text-gray-400 font-light text-center
-                    text-base text-md md:text-xl">
+                    text-base text-md md:text-xl lg:w-4xl lg:mx-auto">
                     Collecting testimonials is hard, we get it! So we built Testimonial.
                     In minutes, you can collect text and video testimonials from your
                     customers with no need for a developer or website hosting.
