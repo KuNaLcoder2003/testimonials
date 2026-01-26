@@ -3,6 +3,7 @@
 import './App.css'
 import Features from './components/Features'
 import HeroSection from './components/HeroSection'
+import Integrations from './components/Integrations'
 import Navbar from './components/Navbar'
 
 function App() {
@@ -13,8 +14,9 @@ function App() {
         <Navbar />
         <HeroSection />
       </div>
-      <div className='w-full flex flex-col items-center'>
+      <div className='w-full flex flex-col items-center gap-12'>
         <Features />
+        <Integrations />
       </div>
     </div>
   )
