@@ -11,7 +11,7 @@ const LandingPage: React.FC = () => {
     return (
         <div className='space-y-20 overflow-x-hidden'>
             <div className='w-full flex flex-col items-center'>
-                <Navbar />
+                <Navbar display={true} />
                 <HeroSection />
             </div>
             <div className='w-full flex flex-col items-center gap-12'>
