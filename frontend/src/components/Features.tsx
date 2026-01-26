@@ -46,7 +46,7 @@ const Features_List = [
 const Features = () => {
     return (
         <div className="w-full p-4 flex items-center justify-center">
-            <div className="max-w-6xl m-auto space-y-8">
+            <div className="max-w-6xl m-auto space-y-8 py-5">
                 <h2 className="text-2xl lg:text-5xl font-semibold text-center mb-12">Collect and display testimonials all in <br />one solution</h2>
                 <div className="space-y-20">
                     {
@@ -60,6 +60,7 @@ const Features = () => {
                                         <p className="text-md font-bold text-blue-600">{item.badge}</p>
                                         <h3 className="text-3xl font-bold max-w-lg">{item.heading}</h3>
                                         <p className="max-w-lg text-center lg:text-left text-gray-400 font-light">{item.desc}</p>
+                                        <button className="px-6 py-2 bg-blue-600 text-white rounded-lg cursor-pointer">Try free now</button>
                                     </div>
                                     <div>
                                         <img
