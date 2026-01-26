@@ -1,6 +1,8 @@
-import { Heart, MessageCircleIcon, Pencil, Settings, Video, X } from "lucide-react";
+import { Heart, MessageCircleIcon, Pencil, PlusCircle, Settings, Video, X } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { BiDotsVertical } from "react-icons/bi";
+import { LuDelete } from "react-icons/lu";
 type Tabs = "Baisc" | "Prompts" | "Thankyou Page"
 
 const tabs = [
@@ -26,6 +28,10 @@ interface Basic {
     header: string,
     custom_message: string,
 }
+interface ThankYou {
+    thank_you_title: string,
+    thank_you_message: string,
+}
 
 interface Question {
     id: number;
@@ -40,6 +46,12 @@ const CreateSpaceModal: React.FC<{ setModal: React.Dispatch<React.SetStateAction
         custom_message: "Your custom message goes here...",
     })
     const [spaceLogo, setSpaceLogo] = useState<File | null>(null)
+    const [thankYouTab, setThankYouTab] = useState<ThankYou>({
+        thank_you_title: "Thank You",
+        thank_you_message: "Thank you so much for your shoutout! It means a ton for us! 🙏",
+    })
+    const [thankYouFile, setThankYouFile] = useState<File | null>(null)
+
     const [question, setquestions] = useState<Question[]>([
         {
             id: 1,
@@ -90,8 +102,8 @@ const CreateSpaceModal: React.FC<{ setModal: React.Dispatch<React.SetStateAction
                             setLogo={setSpaceLogo}
                         />
                     )}
-                    {tab === "Prompts" && <PromptsTab questions={question} setQuestions={setquestions} />}
-                    {tab === "Thankyou Page" && <div>Thank You page</div>}
+                    {tab === "Prompts" && <PromptsTab questions={question} setQuestions={setquestions} baiscDetails={basicTabDetails} space_logo={spaceLogo} />}
+                    {tab === "Thankyou Page" && <ThankYouTab thankYouDetails={thankYouTab} setThankYou={setThankYouTab} asset={thankYouFile} setAsset={setThankYouFile} />}
                 </div>
 
             </div>
@@ -246,11 +258,193 @@ const BasicTab: React.FC<{
     )
 }
 
-const PromptsTab: React.FC<{ setQuestions: React.Dispatch<React.SetStateAction<Question[]>>, questions: Question[] }> = ({ setQuestions, questions }) => {
-    console.log(questions, setQuestions)
-    return (
-        <div>
+const PromptsTab: React.FC<{
+    setQuestions: React.Dispatch<React.SetStateAction<Question[]>>, questions: Question[], baiscDetails: Basic
+    space_logo: File | null
+}> = ({ setQuestions, questions, space_logo, baiscDetails }) => {
+    function changeQuestion(id: number, newValue: string) {
+        if (!id) {
+            return
+        }
+        setQuestions(arr => arr.map(item => {
+            if (item.id == id) {
+                item.question = newValue
+                return item
+            } else {
+                return item
+            }
+        }))
+    }
 
+    const [newQuestion, setNewQuestion] = useState<string>("")
+
+    function addQuestion(value: string) {
+        if (questions.length == 5) {
+            return
+        }
+
+        setQuestions(arr => [...arr, { id: questions.length, question: value }])
+        setNewQuestion("")
+    }
+    const [addMore, setAddMore] = useState<boolean>(false)
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-10 w-full">
+            {/* Preview */}
+            <div className="lg:sticky lg:top-6 h-fit col-span-2">
+                <div className="rounded-xl shadow-sm p-6 flex flex-col justify-between min-h-160">
+                    <div className="space-y-6">
+                        {space_logo ? (
+                            <img
+                                src={URL.createObjectURL(space_logo)}
+                                className="h-24 w-24 rounded-full mx-auto object-cover"
+                            />
+                        ) : (
+                            <div className="h-16 w-16 rounded-full mx-auto bg-indigo-600 text-white flex items-center justify-center text-xl">
+                                👍
+                            </div>
+                        )}
+
+                        <div>
+                            <h2 className="text-2xl font-semibold text-center">
+                                {baiscDetails.header || "Header goes here..."}
+                            </h2>
+                            <p className="text-gray-400 mt-2 text-center">
+                                {baiscDetails.custom_message || "Custom message goes here..."}
+                            </p>
+                        </div>
+                        <div className="flex flex-col items-baseline gap-2 mt-8">
+                            <div className="w-full">
+                                <h3 className="text-2xl font-semibold">Questions</h3>
+                                <div className="w-[20%] border-2 border-blue-600" />
+                            </div>
+                            {
+                                questions.map((item) => {
+                                    return (
+                                        <div className="flex items-baseline gap-4">
+                                            <div className="w-2 h-2 rounded-full bg-black"></div>
+                                            <p className="text-md font-light text-gray-500">{item.question}</p>
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
+                    </div>
+                    <div className="space-y-2 mt-6">
+                        <button className="w-full bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center gap-2">
+                            Record a video <Video />
+                        </button>
+                        <button className="w-full bg-black/70 text-white py-2 rounded-lg flex items-center justify-center gap-2">
+                            Send in text <Pencil />
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="space-y-10 col-span-3 w-full">
+                <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-bold">Prompts & Questions</h2>
+                </div>
+                <div className="mt-10 flex flex-col items-baseline p-10 gap-4 w-full">
+                    <h2 className="text-xl text-gray-500 font-medium">Questions</h2>
+                    <div className="flex flex-col items-baseline gap-4 w-full">
+                        {
+                            questions.map(item => {
+                                return (
+                                    <div key={`${item.id}_${item.id}`} className="flex items-center gap-2 w-full">
+                                        <BiDotsVertical size={24} className="cursor-pointer" />
+                                        <input onChange={(e) => { changeQuestion(item.id, e.target.value) }} value={item.question} className="w-full px-6 py-2 rounded-lg border border-stone-200" />
+                                        <LuDelete color="red" className="cursor-pointer" />
+                                    </div>
+                                )
+                            })
+                        }
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <PlusCircle onClick={() => setAddMore(!addMore)} className="cursor-pointer" />
+                        <p className="">{"Add one more (upto 5)"}</p>
+                    </div>
+                    {
+                        addMore && <div className="flex items-center gap-2 w-full">
+
+                            <input value={newQuestion} onChange={(e) => setNewQuestion(e.target.value)} className="w-full px-6 py-2 rounded-lg border border-stone-200" />
+                            <button onClick={() => { addQuestion(newQuestion) }} className="px-6 py-2 text-white bg-blue-600 rounded-lg">Save</button>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    )
+}
+
+const ThankYouTab: React.FC<{ thankYouDetails: ThankYou, asset: File | null, setThankYou: React.Dispatch<React.SetStateAction<ThankYou>>, setAsset: React.Dispatch<React.SetStateAction<File | null>> }> = ({ thankYouDetails, asset, setThankYou, setAsset }) => {
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+            <div className="lg:sticky lg:top-6 h-fit">
+                <div className="rounded-xl shadow-sm p-6 flex flex-col justify-center gap-6 min-h-90">
+                    <div className="w-[100%] mx-auto">
+                        <img className="w-full h-full object-cover rounded-lg" src={asset ? URL.createObjectURL(asset) : "https://media1.giphy.com/media/g9582DNuQppxC/giphy.gif?cid=ecf05e47ibtkj6mhht2m6gpzy157hwtxvlxlzqlijwrfqh8i&rid=giphy.gif"} />
+                    </div>
+                    <h3 className="text-3xl font-semibold text-gray-400 text-center">{thankYouDetails.thank_you_title.length > 0 ? thankYouDetails.thank_you_title : "Thank You!"}</h3>
+                    <p className="text-md font-light text-gray-400 text-center">{thankYouDetails.thank_you_message.length > 0 ? thankYouDetails.thank_you_message : "Thank you so much for your shoutout! It means a ton for us! 🙏"}</p>
+                </div>
+            </div>
+
+            <div className="space-y-10 col-span-2">
+                <div className="text-center space-y-2">
+                    <h2 className="text-3xl font-bold text-center">Customize thank you page</h2>
+                    <p className="text-gray-400">
+                        Add your personalized message to show your appreciate
+                    </p>
+                </div>
+
+                <div className="mt-10 w-full space-y-8">
+                    <div>
+                        <div className="space-y-1">
+                            <p className="text-sm font-thin">Image <span className="text-red-500">*</span></p>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="h-12 w-20 rounded-lg">
+                                <img className="w-full h-full object-cover rounded-lg" src={asset ? URL.createObjectURL(asset) : "https://media1.giphy.com/media/g9582DNuQppxC/giphy.gif?cid=ecf05e47ibtkj6mhht2m6gpzy157hwtxvlxlzqlijwrfqh8i&rid=giphy.gif"} />
+                            </div>
+                            <button className="relative px-6 py-1 bg-gray-200 rounded-lg cursor-pointer text-center ">
+                                <p className="cursor-pointer ">Change</p>
+                                <input type="file" onChange={(e) => {
+                                    const files = e.target.files
+                                    if (!files) {
+                                        return
+                                    }
+                                    setAsset(files[0])
+                                }} className="absolute inset-0 opacity-0 cursor-pointer " />
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div>
+                        <label className="text-sm text-gray-500">Thank You Title <span className="text-red-600">*</span></label>
+                        <input
+                            className="w-full border border-stone-200 rounded-lg px-4 py-2"
+                            onChange={(e) =>
+                                setThankYou({ ...thankYouDetails, thank_you_title: e.target.value })
+                            }
+                        />
+                    </div>
+
+
+                    <div>
+                        <label className="text-sm text-gray-500">Thank You Message <span className="text-red-600">*</span></label>
+                        <input
+                            className="w-full border border-stone-200 rounded-lg px-4 py-2"
+                            onChange={(e) =>
+                                setThankYou({ ...thankYouDetails, thank_you_message: e.target.value })
+                            }
+                        />
+                    </div>
+                </div>
+
+                <button className="text-center text-white bg-blue-600 py-2 w-full rounded-sm cursor-pointer">Save & Craete New Space</button>
+            </div>
         </div>
     )
 }
