@@ -1,19 +1,14 @@
 import express from "express"
 import cors from "cors"
+import sub_router from "./routes/index.js"
 const app = express()
-import prisma from "./prisma.js"
+
 
 app.use(cors())
 app.use(express.json())
 
+app.use('/api/v1', sub_router)
 
-app.get('/', async (req: express.Request, res: express.Response) => {
-    const response = await prisma.space.findMany({})
-
-    res.status(200).json({
-        response
-    })
-})
 app.listen(8000, () => {
     console.log('App started at port : 8000')
 })
