@@ -15,6 +15,8 @@ datasource db {
 model Space {
   id String @id @default(uuid())
   space_name String @db.VarChar(255)
+  text_testimonial_count Int @default(0)
+  video_testimonial_count Int @default(0)
   header String
   message String
   question_1 String
@@ -22,6 +24,10 @@ model Space {
   question_3 String
   question_4 String
   question_5 String
+  created_at DateTime
+  updated_at DateTime
+  user_id String
+  user User @relation(fields: [user_id] , references: [id])
   testimonials Testimonial[]
 }
 
@@ -32,5 +38,22 @@ model Testimonial {
   avatar String
   email String
   name String
+  title String @default("")
+  company String @default("")
+  social_link String @default("")
+  created_at DateTime
+  updated_at DateTime
   space Space @relation(fields: [space_id] , references: [id])
+}
+
+model User {
+  id String @id @default(uuid())
+  first_name String
+  last_name String
+  email String
+  password String @default("")
+  avatar_url String @default("")
+  created_at DateTime
+  updated_at DateTime
+  spaces Space[]
 }
