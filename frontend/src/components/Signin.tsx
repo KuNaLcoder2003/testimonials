@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { LogIn, Lock, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-const BACKEND_URL = `http://localhost:8000/api/v1`
+const BACKEND_URL = `${import.meta.env.VITE_BACKEND_URL}`
 const SignIn: React.FC = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
