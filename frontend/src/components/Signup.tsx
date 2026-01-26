@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { UserPlus, Lock, Mail, User, User2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-const BACKEND_URL = `http://localhost:8000/api/v1`
-console.log(BACKEND_URL)
+const BACKEND_URL = `${import.meta.env.VITE_BACKEND_URL}`
 const SignUp: React.FC = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
