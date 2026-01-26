@@ -2,8 +2,10 @@ import { LogIn, MenuIcon, User2Icon } from "lucide-react";
 import type React from "react";
 import { motion } from "framer-motion"
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-const Navbar: React.FC = () => {
+const Navbar: React.FC<{ display: boolean }> = ({ display }) => {
     const links = [
         {
             id: "1",
@@ -40,9 +42,10 @@ const Navbar: React.FC = () => {
         }
     ]
 
-    const [isLoggedIn, setIsLoggedIn] = useState<boolean>(true)
+    const { logout, isLoggedIn, user } = useAuth()
     const [isUserOpen, setisUserOpen] = useState<boolean>(false)
     const [isOpen, setIsOpen] = useState<boolean>(false)
+    const navigate = useNavigate()
     return (
         <div className="w-full fixed top-0 z-[99999] bg-white px-3">
             <div className="w-full">
@@ -50,17 +53,19 @@ const Navbar: React.FC = () => {
                     <div className="">
                         <h2 className="text-xl font-semibold"><span className="text-blue-500 underline">Easy</span><span className="underline">Monials</span></h2>
                     </div>
-                    <div className="hidden lg:flex items-center justify-center gap-8">
-                        {
-                            links.map(item => {
-                                return (
-                                    <p key={item.id} className="text-center cursor-pointer hover:scale-[1.06]" style={{ transition: "scale", transitionDuration: "0.2s" }}>{item.title}</p>
-                                )
-                            })
-                        }
-                    </div>
+                    {
+                        display && <div className="hidden lg:flex items-center justify-center gap-8">
+                            {
+                                links.map(item => {
+                                    return (
+                                        <p key={item.id} className="text-center cursor-pointer hover:scale-[1.06]" style={{ transition: "scale", transitionDuration: "0.2s" }}>{item.title}</p>
+                                    )
+                                })
+                            }
+                        </div>
+                    }
                     <div onClick={() => setisUserOpen(!isUserOpen)} className="hidden lg:flex items-center justify-center w-12 h-12 rounded-full bg-blue-200 cursor-pointer relative">
-                        <User2Icon />
+                        {isLoggedIn ? <p className="text-white">{user?.name[0]}</p> : <User2Icon />}
                         {
                             isUserOpen && <div className="absolute top-15 w-36 h-auto p-4 shadow-lg z-999 rounded-lg bg-white">
                                 {
@@ -68,16 +73,16 @@ const Navbar: React.FC = () => {
                                         {
                                             userLinks.map(item => {
                                                 return (
-                                                    <p key={`${item.title}_${item.id}`} className="text-sm cursor-pointer py-2">{item.title}</p>
+                                                    <p onClick={() => navigate(`${item.to}`)} key={`${item.title}_${item.id}`} className="text-sm cursor-pointer py-2">{item.title}</p>
                                                 )
                                             })
                                         }
                                         <button onClick={() => {
                                             setisUserOpen(false)
-                                            setIsLoggedIn(false)
+                                            logout()
                                         }} className="w-full text-center bg-blue-500 text-white rounded-lg cursor-pointer">Logout</button>
                                     </div> : <div className="flex items-center gap-2" onClick={() => {
-                                        setIsLoggedIn(true)
+                                        navigate('/signin')
                                     }}>
                                         <LogIn />
                                         <p className="text-sm">Login</p>
@@ -100,23 +105,25 @@ const Navbar: React.FC = () => {
                             transitionTimingFunction: "ease"
                         }}
                         className="w-full flex flex-col gap-5 shadow-lg lg:hidden p-4">
-                        <div className="flex flex-col items-baseline justify-center gap-8">
-                            {
-                                links.map(item => {
-                                    return (
-                                        <p key={item.id} className="text-center cursor-pointer hover:scale-[1.06]" style={{ transition: "scale", transitionDuration: "0.2s" }}>{item.title}</p>
-                                    )
-                                })
-                            }
-                        </div>
+                        {
+                            display && <div className="flex flex-col items-baseline justify-center gap-8">
+                                {
+                                    links.map(item => {
+                                        return (
+                                            <p onClick={() => navigate(`${item.to}`)} key={item.id} className="text-center cursor-pointer hover:scale-[1.06]" style={{ transition: "scale", transitionDuration: "0.2s" }}>{item.title}</p>
+                                        )
+                                    })
+                                }
+                            </div>
+                        }
                         <div className="flex justify-start">
                             <div
                                 onClick={() => setisUserOpen(!isUserOpen)}
                                 className="relative flex items-center gap-3 cursor-pointer"
                             >
 
-                                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-200">
-                                    <User2Icon />
+                                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-200 text-white">
+                                    {isLoggedIn ? user?.name[0] : <User2Icon />}
                                 </div>
 
 
@@ -135,7 +142,7 @@ const Navbar: React.FC = () => {
                                                 <button
                                                     onClick={() => {
                                                         setisUserOpen(false)
-                                                        setIsLoggedIn(false)
+                                                        logout()
                                                     }}
                                                     className="mt-2 w-full rounded-lg bg-blue-500 py-1.5 text-sm text-white"
                                                 >
@@ -145,7 +152,7 @@ const Navbar: React.FC = () => {
                                         ) : (
                                             <div
                                                 className="flex items-center gap-2 text-sm cursor-pointer hover:bg-gray-100 rounded-md p-2"
-                                                onClick={() => setIsLoggedIn(true)}
+                                                onClick={() => navigate('/signin')}
                                             >
                                                 <LogIn size={16} />
                                                 <p>Login</p>
