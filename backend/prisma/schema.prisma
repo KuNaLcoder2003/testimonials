@@ -19,16 +19,18 @@ model Space {
   video_testimonial_count Int @default(0)
   header String
   message String
-  question_1 String
-  question_2 String
-  question_3 String
-  question_4 String
-  question_5 String
+  space_image String
+  question_1 String @default("")
+  question_2 String @default("")
+  question_3 String @default("")
+  question_4 String @default("")
+  question_5 String @default("")
   created_at DateTime
   updated_at DateTime
   user_id String
   user User @relation(fields: [user_id] , references: [id])
   testimonials Testimonial[]
+  thankYou ThankYouPage?
 }
 
 model Testimonial {
@@ -56,4 +58,13 @@ model User {
   created_at DateTime
   updated_at DateTime
   spaces Space[]
+}
+
+model ThankYouPage {
+  id String @id @default(uuid())
+  image_url String
+  title String
+  message String
+  space_id String @unique
+  space Space @relation(fields: [space_id] , references: [id])
 }
