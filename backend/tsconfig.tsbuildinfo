@@ -1,1 +1,1 @@
-{"root":["./src/cloudinary.ts","./src/index.ts","./src/prisma.ts","./src/routes/index.ts","./src/routes/users/types.ts","./src/routes/users/user.ts"],"version":"5.9.3"}
+{"root":["./src/cloudinary.ts","./src/index.ts","./src/prisma.ts","./src/middlewares/authmiddleware.ts","./src/routes/index.ts","./src/routes/spaces/space.ts","./src/routes/spaces/types.ts","./src/routes/users/types.ts","./src/routes/users/user.ts"],"version":"5.9.3"}
