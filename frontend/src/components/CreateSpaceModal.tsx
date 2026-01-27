@@ -3,6 +3,8 @@ import type React from "react";
 import { useState } from "react";
 import { BiDotsVertical } from "react-icons/bi";
 import { LuDelete } from "react-icons/lu";
+import createSpace from "../functions/createSpace";
+import { toast } from "react-hot-toast"
 type Tabs = "Baisc" | "Prompts" | "Thankyou Page"
 
 const tabs = [
@@ -17,7 +19,7 @@ const tabs = [
         icon: <MessageCircleIcon />
     },
     {
-        id: 2,
+        id: 3,
         tab: "Thankyou Page" as Tabs,
         icon: <Heart />
     }
@@ -37,6 +39,8 @@ interface Question {
     id: number;
     question: string;
 }
+
+
 
 const CreateSpaceModal: React.FC<{ setModal: React.Dispatch<React.SetStateAction<boolean>> }> = ({ setModal }) => {
     const [tab, setTab] = useState<Tabs>("Baisc")
@@ -66,11 +70,50 @@ const CreateSpaceModal: React.FC<{ setModal: React.Dispatch<React.SetStateAction
             question: "What is the best thing about [our product / service]",
         }
     ])
+    const createSpaceHandler = async () => {
+        if (!thankYouFile || !spaceLogo) {
+            console.log('1')
+            toast.error('Files missing')
+            return
+        }
+        if (thankYouTab.thank_you_title.length == 0 || thankYouTab.thank_you_message.length == 0) {
+            console.log('2')
+            toast.error('Thank you page details missing')
+            return
+        }
+        if (basicTabDetails.custom_message.length == 0 || basicTabDetails.header.length == 0 || basicTabDetails.space_name.length == 0) {
+            console.log('2')
+            toast.error('Basic details missing')
+            return
+        }
+        if (question.length == 0) {
+            console.log('3')
+            toast.error('Atleast provided one question')
+            return
+        }
+        console.log('4')
+        const formData = new FormData()
+        formData.append('space_name', basicTabDetails.space_name)
+        formData.append('header', basicTabDetails.header)
+        formData.append('message', basicTabDetails.custom_message)
+        formData.append('space_image', spaceLogo)
+        for (let i = 0; i < question.length; i++) {
+            formData.append(`question_${i + 1}`, question[i].question)
+        }
+        formData.append('title', thankYouTab.thank_you_title)
+        formData.append('thank_you_message', thankYouTab.thank_you_message)
+        formData.append('thank_you_page_image', thankYouFile)
+        const { err, message } = await createSpace(formData)
+        if (err.length > 0) {
+            toast.error(err)
+        } else {
+            toast.success(message)
+        }
+    }
 
     return (
         <div className="fixed inset-0 z-[9999999] bg-black/30 flex items-center justify-center p-4">
             <div className="w-full max-w-6xl bg-white rounded-xl shadow-xl overflow-hidden">
-
                 {/* Header */}
                 <div className="flex items-center justify-between p-4">
                     <div className="flex flex-wrap">
@@ -88,7 +131,12 @@ const CreateSpaceModal: React.FC<{ setModal: React.Dispatch<React.SetStateAction
                             </button>
                         ))}
                     </div>
-                    <X onClick={() => setModal(false)} className="cursor-pointer" size={18} />
+                    <div className="flex items-center gap-4">
+                        <button onClick={async () => {
+                            createSpaceHandler()
+                        }} className="text-center text-white bg-blue-600 py-2 px-6 w-full rounded-sm cursor-pointer">Save & Create New Space</button>
+                        <X onClick={() => setModal(false)} className="cursor-pointer" size={18} />
+                    </div>
                 </div>
 
                 {/* Body */}
@@ -245,13 +293,13 @@ const BasicTab: React.FC<{
                         />
                     </div>
 
-                    <div className="flex justify-end gap-4 mt-10">
+                    {/* <div className="flex justify-end gap-4 mt-10">
                         <button className="text-white text-center bg-blue-600 px-6 py-2 rounded-lg cursor-pointer hover:scale-[1.05]" style={{
                             transition: "scale",
                             transitionTimingFunction: "ease",
                             transitionDuration: "0.2s"
                         }}>Next</button>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>
@@ -320,7 +368,7 @@ const PromptsTab: React.FC<{
                             {
                                 questions.map((item) => {
                                     return (
-                                        <div className="flex items-baseline gap-4">
+                                        <div key={`${item.id}`} className="flex items-baseline gap-4">
                                             <div className="w-2 h-2 rounded-full bg-black"></div>
                                             <p className="text-md font-light text-gray-500">{item.question}</p>
                                         </div>
@@ -442,8 +490,6 @@ const ThankYouTab: React.FC<{ thankYouDetails: ThankYou, asset: File | null, set
                         />
                     </div>
                 </div>
-
-                <button className="text-center text-white bg-blue-600 py-2 w-full rounded-sm cursor-pointer">Save & Craete New Space</button>
             </div>
         </div>
     )
