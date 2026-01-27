@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Space" ALTER COLUMN "question_1" SET DEFAULT '',
+ALTER COLUMN "question_2" SET DEFAULT '',
+ALTER COLUMN "question_3" SET DEFAULT '',
+ALTER COLUMN "question_4" SET DEFAULT '',
+ALTER COLUMN "question_5" SET DEFAULT '';
