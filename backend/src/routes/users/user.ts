@@ -5,11 +5,14 @@ import dotenv from "dotenv"
 import jwt from "jsonwebtoken"
 import multer from "multer"
 import uploadAsset from "../../cloudinary.js"
+import authMiddleware from "../../middlewares/authMiddleware.js"
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 dotenv.config()
 const userRouter = express.Router()
 const JWT_SECRET = `${process.env.JWT_SECRET}`
+
+
 userRouter.post('/signup', upload.single('avatar'), async (req: express.Request, res: express.Response) => {
     try {
         const { first_name, last_name, email, password } = req.body as signup
@@ -132,6 +135,46 @@ userRouter.post('/signin', async (req: express.Request, res: express.Response) =
         })
     }
 })
+
+userRouter.post('/me', authMiddleware, async (req: any, res: express.Response) => {
+    try {
+        const userId = req.id;
+        const response = await prisma.$transaction(async (tx) => {
+            const spaces = await tx.space.findMany({
+                where: {
+                    user_id: userId
+                },
+                select: {
+                    text_testimonial_count: true,
+                    video_testimonial_count: true,
+                    space_name: true,
+                    space_image: true,
+                    id: true,
+                }
+            })
+            return { spaces }
+        }, { maxWait: 5000, timeout: 2000 })
+
+        if (!response || !response.spaces) {
+            res.status(403).json({
+                message: "Unable to get spaces",
+                valid: false
+            })
+            return
+        }
+        res.status(200).json({
+            valid: true,
+            spaces: response.spaces
+        })
+    } catch (error) {
+        res.status(500).json({
+            error: error,
+            messsage: "Something went wrong",
+            valid: false
+        })
+    }
+})
+
 
 
 
