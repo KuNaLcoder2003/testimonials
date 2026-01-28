@@ -38,6 +38,7 @@ model Testimonial {
   space_id String
   type String
   avatar String
+  message String
   email String
   name String
   title String @default("")
@@ -46,6 +47,14 @@ model Testimonial {
   created_at DateTime
   updated_at DateTime
   space Space @relation(fields: [space_id] , references: [id])
+  images Image?
+}
+
+model Image {
+  id String @id @default(uuid())
+  testimonial_id String @unique
+  image_url String
+  testimonial Testimonial @relation(fields: [testimonial_id] , references: [id])
 }
 
 model User {
