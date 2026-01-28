@@ -8,12 +8,14 @@ import CreateSpaceModal from "../components/CreateSpaceModal";
 import { useUser } from "../context/UserContext";
 import { FcDeleteDatabase } from "react-icons/fc";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 
 function Dashboard() {
     const [modalOpen, setModalOpen] = useState<boolean>(false)
     const [openMenuId, setOpenMenuId] = useState<string | null>(null)
     const { spaces, isLoading } = useUser()
+    const navigate = useNavigate()
     return (
         <>
             {
@@ -100,7 +102,7 @@ function Dashboard() {
 
                                                                         <div className="flex items-center justify-center text-sm gap-4 hover:bg-black/50 hover:rounded-lg p-2 w-full">
                                                                             <Edit size={16} />
-                                                                            <p>Manage Testimonials</p>
+                                                                            <p onClick={() => navigate(`/space/${item.id}`)}>Manage Testimonials</p>
                                                                         </div>
                                                                         <div className="flex items-center justify-center text-sm gap-4 hover:bg-black/50 hover:rounded-lg p-2">
                                                                             <FcDeleteDatabase color="white" />
