@@ -9,6 +9,8 @@ import SignUpPage from './pages/SignUpPage'
 import ProtectedRoute from './components/ProtectedRoute'
 import { UserProvider } from './context/UserContext'
 import Collect from './pages/Collect'
+import Space from './pages/Space'
+
 
 function App() {
 
@@ -18,6 +20,7 @@ function App() {
       <Route path='/signin' element={<SignInPage />} />
       <Route path='/signup' element={<SignUpPage />} />
       <Route path='/testify/:space' element={<Collect />} />
+      <Route path='/embbed/c/:space' element={<Collect />} />
       <Route path='/dashboard'
         element={
           <ProtectedRoute>
@@ -25,10 +28,10 @@ function App() {
               <Dashboard />
             </UserProvider>
           </ProtectedRoute>} />
-
-
-
+      <Route path='/space/:id' element={<Space />} />
     </Routes>
+
+
   )
 }
 
