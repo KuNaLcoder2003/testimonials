@@ -1,7 +1,7 @@
 import type React from "react"
 import Navbar from "../components/Navbar"
 import { useEffect, useState } from "react"
-import { ArrowDown, ArrowUp, CodeXml, Download, Folder, GiftIcon, Heart, icons, Pencil, ShareIcon, Star, TagIcon, Video } from "lucide-react"
+import { ArrowDown, ArrowUp, CodeXml, Download, Folder, GiftIcon, Heart, Pencil, ShareIcon, Star, TagIcon, Video } from "lucide-react"
 import { BsPeople, BsThreeDots } from "react-icons/bs"
 import { HiHeart } from "react-icons/hi"
 import { FaDownLong } from "react-icons/fa6"
