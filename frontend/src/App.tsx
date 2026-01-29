@@ -10,6 +10,8 @@ import ProtectedRoute from './components/ProtectedRoute'
 import { UserProvider } from './context/UserContext'
 import Collect from './pages/Collect'
 import Space from './pages/Space'
+import { EmbedRenderer } from './components/EmbedRenderer'
+import { useEffect, useState } from 'react'
 
 
 function App() {
@@ -29,10 +31,40 @@ function App() {
             </UserProvider>
           </ProtectedRoute>} />
       <Route path='/space/:id' element={<Space />} />
+      <Route path='/t/:id' element={<EmbedPreviewPage />} />
     </Routes>
 
 
   )
+}
+
+function EmbedPreviewPage() {
+  const [design, setDesign] = useState<any>(null);
+  const [testimonial, setTestimonial] = useState<any>(null);
+
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === "APPLY_EMBED_DESIGN") {
+        console.log(e.data)
+        setDesign(e.data.design);
+        setTestimonial(e.data.testimonial);
+      }
+    };
+
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, []);
+
+  if (!design || !testimonial) {
+    return <div style={{ minHeight: 200 }} />;
+  }
+
+  return (
+    <EmbedRenderer
+      design={design}
+      testimonial={testimonial}
+    />
+  );
 }
 
 export default App
