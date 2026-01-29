@@ -2,7 +2,7 @@ import { Cloud, LineSquiggle, Square, Text } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import { BsBorder } from "react-icons/bs";
-import { EmbedRenderer } from "./EmbedRenderer";
+// import { EmbedRenderer } from "./EmbedRenderer";
 
 type EmbedDesign = {
     layout: DesignOption
