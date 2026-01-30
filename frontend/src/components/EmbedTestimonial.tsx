@@ -2,8 +2,9 @@ import { Cloud, LineSquiggle, Square, Text } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import { BsBorder } from "react-icons/bs";
-import { EmbedRenderer } from "./EmbedRenderer";
 import "iframe-resizer/js/iframeResizer.contentWindow";
+import Preview from "./Preview";
+// import Preview from "./Preview";
 
 
 type EmbedDesign = {
@@ -53,8 +54,9 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
         borderWidth: 2
     })
     useEffect(() => {
-        iframeRef.current?.contentWindow?.postMessage(
-            {
+
+        window.postMessage(
+            JSON.stringify({
                 type: "APPLY_EMBED_DESIGN",
                 design,
                 testimonial: {
@@ -62,8 +64,8 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
                     message,
                     avatar
                 }
-            },
-            "*"
+            }),
+            "http://localhost:5173/t/9161654e-79c8-4b0b-ab6b-647c5a213966"
         )
     }, [design, name, message, avatar])
 
@@ -101,15 +103,16 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
 
 
             {/* Preview of embed */}
-            <div className="w-[90%] mx-auto">
+            {/* <div className="w-[90%] mx-auto">
                 <EmbedRenderer design={design} testimonial={{ name: name, message: message, avatar: avatar }} />
-            </div>
-            {/* <iframe
+            </div> */}
+            <iframe
                 ref={iframeRef}
                 src="http://localhost:5173/t/9161654e-79c8-4b0b-ab6b-647c5a213966"
-                className="w-full h-[450px] rounded-lg border"
+                className="w-full h-[20px] rounded-lg border"
                 title="Embed Preview"
-            /> */}
+            />
+            <Preview />
         </div>
     )
 }
