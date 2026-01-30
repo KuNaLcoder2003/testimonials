@@ -152,4 +152,67 @@ testiMonialRouter.post('/getTestimonial', authMiddleware, async (req: express.Re
         })
     }
 })
+
+testiMonialRouter.post('/createEmbed', authMiddleware, async (req: express.Request, res: express.Response) => {
+    try {
+        const { testimonial_id, margin, background, border_thickness, text_size, border_color, text_font, shadow, border_radius, design_type, avatar, text_color } = req.body;
+
+        const response = await prisma.$transaction(async (tx) => {
+            const embed = tx.embed.upsert({
+
+                create: {
+                    testimonial_id: testimonial_id,
+                    design_type: design_type,
+                    image: avatar,
+                    border_color: border_color,
+                    text_color: text_color,
+                    border_radius: border_radius,
+                    border_thickness: border_thickness,
+                    margin: margin,
+                    text_font: text_font,
+                    text_size: text_size,
+                    background: background,
+                    shadow: shadow
+                },
+                where: {
+                    testimonial_id: testimonial_id
+                },
+                update: {
+                    design_type: design_type,
+                    image: avatar,
+                    border_color: border_color,
+                    text_color: text_color,
+                    border_radius: border_radius,
+                    border_thickness: border_thickness,
+                    margin: margin,
+                    text_font: text_font,
+                    text_size: text_size,
+                    background: background,
+                    shadow: shadow
+                }
+            })
+            return { embed }
+        }, { maxWait: 5000, timeout: 2000 })
+
+        if (!response || !response.embed) {
+            res.status(403).json({
+                message: "Unable to create embed link",
+                valid: false
+            })
+            return
+        }
+        res.status(200).json({
+            message: "Saved",
+            valid: true
+        })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            error: error,
+            message: "Something went wrong",
+            valid: false
+        })
+    }
+})
 export default testiMonialRouter

@@ -66,5 +66,23 @@ function EmbedPreviewPage() {
     />
   );
 }
+{/* <script src="https://https://testimonials-smoky.vercel.app/iframeResizer.min.js"></script>
+
+<iframe
+  id="easymonials-embed-9161654e"
+  src="https://https://testimonials-smoky.vercel.app/t/9161654e"
+  style="width:100%; border:0;"
+  scrolling="no">
+</iframe>
+
+<script>
+  iFrameResize(
+    {
+      log: false,
+      checkOrigin: true
+    },
+    "#easymonials-embed-9161654e"
+  );
+</script> */}
 
 export default App

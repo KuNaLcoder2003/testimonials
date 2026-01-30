@@ -48,6 +48,7 @@ model Testimonial {
   updated_at DateTime
   space Space @relation(fields: [space_id] , references: [id])
   images Image?
+  embed Embed?
 }
 
 model Image {
@@ -76,4 +77,21 @@ model ThankYouPage {
   message String
   space_id String @unique
   space Space @relation(fields: [space_id] , references: [id])
+}
+
+model Embed {
+  testimonial_id String 
+  design_type String @default("Aligned Left")
+  background String @default("blue")
+  margin Int @default(4)
+  border_thickness Int
+  border_color String
+  border_radius String @default("small")
+  text_color String @default("black")
+  text_font String @default("Open Sans")
+  text_size String @default("Default")
+  shadow String
+  image String @default("")
+  testimonial Testimonial @relation(fields: [testimonial_id] , references: [id])
+  @@id([testimonial_id])
 }

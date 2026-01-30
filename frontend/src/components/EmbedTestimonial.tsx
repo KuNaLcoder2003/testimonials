@@ -2,7 +2,9 @@ import { Cloud, LineSquiggle, Square, Text } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 import { useState } from "react";
 import { BsBorder } from "react-icons/bs";
-// import { EmbedRenderer } from "./EmbedRenderer";
+import { EmbedRenderer } from "./EmbedRenderer";
+import "iframe-resizer/js/iframeResizer.contentWindow";
+
 
 type EmbedDesign = {
     layout: DesignOption
@@ -99,15 +101,15 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
 
 
             {/* Preview of embed */}
-            {/* <div className="w-[90%] mx-auto">
+            <div className="w-[90%] mx-auto">
                 <EmbedRenderer design={design} testimonial={{ name: name, message: message, avatar: avatar }} />
-            </div> */}
-            <iframe
+            </div>
+            {/* <iframe
                 ref={iframeRef}
                 src="http://localhost:5173/t/9161654e-79c8-4b0b-ab6b-647c5a213966"
                 className="w-full h-[450px] rounded-lg border"
                 title="Embed Preview"
-            />
+            /> */}
         </div>
     )
 }
