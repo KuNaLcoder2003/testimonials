@@ -10,8 +10,9 @@ import ProtectedRoute from './components/ProtectedRoute'
 import { UserProvider } from './context/UserContext'
 import Collect from './pages/Collect'
 import Space from './pages/Space'
-import { EmbedRenderer } from './components/EmbedRenderer'
-import { useEffect, useState } from 'react'
+// import { EmbedRenderer } from './components/EmbedRenderer'
+// import { useEffect, useState } from 'react'
+import Preview from './components/Preview'
 
 
 function App() {
@@ -31,46 +32,46 @@ function App() {
             </UserProvider>
           </ProtectedRoute>} />
       <Route path='/space/:id' element={<Space />} />
-      <Route path='/t/:id' element={<EmbedPreviewPage />} />
+      <Route path='/t/:id' element={<Preview />} />
     </Routes>
 
 
   )
 }
 
-function EmbedPreviewPage() {
-  const [design, setDesign] = useState<any>(null);
-  const [testimonial, setTestimonial] = useState<any>(null);
+// function EmbedPreviewPage() {
+//   const [design, setDesign] = useState<any>(null);
+//   const [testimonial, setTestimonial] = useState<any>(null);
 
-  useEffect(() => {
-    const handler = (e: MessageEvent) => {
-      if (e.data?.type === "APPLY_EMBED_DESIGN") {
-        console.log(e.data)
-        setDesign(e.data.design);
-        setTestimonial(e.data.testimonial);
-      }
-    };
+//   useEffect(() => {
+//     const handler = (e: MessageEvent) => {
+//       if (e.data?.type === "APPLY_EMBED_DESIGN") {
+//         console.log(e.data)
+//         setDesign(e.data.design);
+//         setTestimonial(e.data.testimonial);
+//       }
+//     };
 
-    window.addEventListener("message", handler);
-    return () => window.removeEventListener("message", handler);
-  }, []);
+//     window.addEventListener("message", handler);
+//     return () => window.removeEventListener("message", handler);
+//   }, []);
 
-  if (!design || !testimonial) {
-    return <div style={{ minHeight: 200 }} />;
-  }
+//   if (!design || !testimonial) {
+//     return <div style={{ minHeight: 200 }} />;
+//   }
 
-  return (
-    <EmbedRenderer
-      design={design}
-      testimonial={testimonial}
-    />
-  );
-}
-{/* <script src="https://https://testimonials-smoky.vercel.app/iframeResizer.min.js"></script>
+//   return (
+//     <EmbedRenderer
+//       design={design}
+//       testimonial={testimonial}
+//     />
+//   );
+// }
+{/* <script src="http://localhost:5173/iframeResizer.min.js"></script>
 
 <iframe
   id="easymonials-embed-9161654e"
-  src="https://https://testimonials-smoky.vercel.app/t/9161654e"
+  src="http://localhost:5173/t/9161654e"
   style="width:100%; border:0;"
   scrolling="no">
 </iframe>
