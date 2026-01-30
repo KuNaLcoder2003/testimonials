@@ -14,7 +14,9 @@ export const EmbedRenderer = ({
     design: EmbedDesign
 }) => {
     switch (design.layout) {
+
         case "Left Aligned":
+            console.log(design)
             return (
                 <LeftAlignedDesign
                     {...testimonial}
@@ -23,6 +25,7 @@ export const EmbedRenderer = ({
             )
 
         case "With Large Image":
+            console.log(design)
             return (
                 <LargeImageDesign
                     {...testimonial}
@@ -31,6 +34,9 @@ export const EmbedRenderer = ({
             )
 
         default:
-            return null
+            return <LeftAlignedDesign
+                {...testimonial}
+                design={design}
+            />
     }
 }
