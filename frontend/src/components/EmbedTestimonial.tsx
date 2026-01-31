@@ -56,7 +56,6 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
         borderWidth: 2
     })
     useEffect(() => {
-        console.log('In editor : ', encrypted_link)
         window.postMessage(
             JSON.stringify({
                 type: "APPLY_EMBED_DESIGN",
@@ -68,7 +67,7 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
                     avatar
                 }
             }),
-            `https://testimonials-smoky.vercel.app/t/${id}`
+            `*`
         )
     }, [design, name, message, avatar])
 
