@@ -67,7 +67,7 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
                     avatar
                 }
             }),
-            `*`
+            `https://testimonials-smoky.vercel.app`
         )
     }, [design, name, message, avatar])
 
