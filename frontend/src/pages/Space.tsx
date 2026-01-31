@@ -11,6 +11,7 @@ import { ImEmbed } from "react-icons/im"
 import { ToastContainer, toast } from 'react-toastify';
 import EmbedTestiMonial from "../components/EmbedTestimonial"
 type Testimonail = {
+    encrypted_link: string
     id: string;
     space_id: string;
     type: string;
@@ -218,7 +219,7 @@ const Space: React.FC = () => {
                 </div> : <div className="relative flex h-screen w-full bg-white">
                     <Navbar display={false} />
                     {
-                        openActionModal && selectedTestimonail && <ActionModal heading="Embed this testimonial to your website" subheading="With just quick copy paste" close={setOpenActionModal} children={<EmbedTestiMonial name={selectedTestimonail.name} message={selectedTestimonail.message} avatar={selectedTestimonail.avatar} />} />
+                        openActionModal && selectedTestimonail && <ActionModal heading="Embed this testimonial to your website" subheading="With just quick copy paste" close={setOpenActionModal} children={<EmbedTestiMonial id={selectedTestimonail.id} encrypted_link={selectedTestimonail.encrypted_link} name={selectedTestimonail.name} message={selectedTestimonail.message} avatar={selectedTestimonail.avatar} />} />
                     }
                     <div className="h-full w-full flex items-end">
                         <ToastContainer position="bottom-center"

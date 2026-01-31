@@ -4,115 +4,32 @@ import multer from "multer"
 import type { NewTestimonial } from "./types.js"
 import uploadAsset from "../../cloudinary.js"
 import prisma from "../../prisma.js"
+import encrypt from "../../functions/encrypt.js"
 const storage = multer.memoryStorage()
 const upload = multer({ storage: storage })
 const testiMonialRouter = express.Router()
+import crypto from "crypto";
+const ALGORITHM = "aes-256-gcm";
+const SECRET_KEY = crypto
+    .createHash("sha256")
+    .update("Secret")
+    .digest(); // 32 bytes
+const IV_LENGTH = 12;
 
-testiMonialRouter.post('/', authMiddleware, upload.fields([
-    { name: 'avatar', maxCount: 1 },
-    { name: 'asset', maxCount: 1 }
-]), async (req: express.Request, res: express.Response) => {
-    try {
-        const { email, name, space_id, message, type } = req.body as NewTestimonial
-        if (!email || !name) {
-            res.status(400).json({
-                message: 'Bad request',
-                valid: false
-            })
-            return
-        }
-        const files = req.files as {
-            avatar: Express.Multer.File[],
-            asset: Express.Multer.File[]
-        }
-        if (!files) {
-            res.status(400).json({
-                message: 'Bad request',
-                valid: false
-            })
-            return
-        }
-        const avatar_file = files.avatar[0]
-        const asset_file = files.asset[0]
-        if (!avatar_file) {
-            res.status(400).json({
-                message: "Avatar file missing",
-                valid: false
-            })
-            return
-        }
-        const buffer_1 = Buffer.from(avatar_file.buffer)
-        const cloud_response_1 = await uploadAsset(buffer_1, "testimonial-user-image", "auto")
-        let buffer_2;
-        let cloud_response_2: any;
-        if (asset_file) {
-            buffer_2 = Buffer.from(asset_file.buffer)
-            cloud_response_2 = await uploadAsset(buffer_1, "testimonial-assets", "auto")
-        }
-        if (!cloud_response_1.valid) {
-            res.status(403).json({
-                message: "Unable to upload Image",
-                valid: false
-            })
-            return
-        }
-        const response = await prisma.$transaction(async (tx) => {
-            const new_testimonial = await tx.testimonial.create({
-                data: {
-                    space_id: space_id,
-                    type: type,
-                    message: message,
-                    avatar: cloud_response_1.url,
-                    created_at: new Date(),
-                    updated_at: new Date(),
-                    name: name,
-                    email: email
-                }
-            })
-            if (cloud_response_2.valid) {
-                tx.image.create({
-                    data: {
-                        testimonial_id: new_testimonial.id,
-                        image_url: cloud_response_2.url
-                    }
-                })
-            }
+export function encryptObject<T>(data: T): string {
+    const iv = crypto.randomBytes(IV_LENGTH);
+    const cipher = crypto.createCipheriv(ALGORITHM, SECRET_KEY, iv);
 
-            const thankYou = await tx.thankYouPage.findFirst({
-                where: {
-                    space_id: space_id
-                },
-                select: {
-                    id: true,
-                    image_url: true,
-                    message: true,
-                    title: true
-                }
-            })
-            return { new_testimonial, thankYou }
-        }, { maxWait: 5000, timeout: 2000 })
+    const encrypted = Buffer.concat([
+        cipher.update(JSON.stringify(data), "utf8"),
+        cipher.final()
+    ]);
 
-        if (!response || !response.new_testimonial) {
-            res.status(403).json({
-                message: "Unable to create testimonial",
-                valid: false
-            })
-            return
-        }
-        res.status(200).json({
-            thankYou: response.thankYou,
-            valid: true
-        })
+    const authTag = cipher.getAuthTag();
 
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({
-            message: "Something went wrong",
-            error: error,
-            valid: false
-        })
-    }
-})
+    return Buffer.concat([iv, authTag, encrypted]).toString("base64");
+}
+
 
 testiMonialRouter.post('/getTestimonial', authMiddleware, async (req: express.Request, res: express.Response) => {
     try {
@@ -140,9 +57,23 @@ testiMonialRouter.post('/getTestimonial', authMiddleware, async (req: express.Re
             })
             return
         }
+        const testimonials = response.testimonials.map((item) => {
+            const payload = {
+                name: item.name,
+                message: item.message,
+                avatar: item.avatar
+            };
+
+
+            let obj = {
+                ...item,
+                encrypted_link: encryptObject(payload),
+            }
+            return obj;
+        })
         res.status(200).json({
             valid: true,
-            testimonials: response.testimonials
+            testimonials: testimonials
         })
     } catch (error) {
         console.log(error)

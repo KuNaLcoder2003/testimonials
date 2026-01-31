@@ -1,9 +1,10 @@
 import { Cloud, LineSquiggle, Square, Text } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { BsBorder } from "react-icons/bs";
 import "iframe-resizer/js/iframeResizer.contentWindow";
 import Preview from "./Preview";
+import { CodeBlock, dracula } from 'react-code-blocks';
 // import Preview from "./Preview";
 
 
@@ -43,21 +44,23 @@ const tabs = [
 ]
 type DesignOption = "Left Aligned" | "Left Aligned-Bold" | "With Large Image" | "Simple Centered"
 const designTabs: DesignOption[] = ["Left Aligned", "Left Aligned-Bold", "Simple Centered", "With Large Image"]
-const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string }> = ({ message, name, avatar }) => {
+const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string, encrypted_link: string, id: string }> = ({ message, name, avatar, id, encrypted_link }) => {
 
     const [styleTab, setStyleTab] = useState<styleTabs>("Design")
     const [designOption, setDesignOption] = useState<DesignOption>("Left Aligned")
-    const iframeRef = useRef<HTMLIFrameElement>(null)
+
+    // const iframeRef = useRef<HTMLIFrameElement>(null)
     const [design, setDesign] = useState<EmbedDesign>({
         layout: "Left Aligned",
         margin: 2,
         borderWidth: 2
     })
     useEffect(() => {
-
+        console.log('In editor : ', encrypted_link)
         window.postMessage(
             JSON.stringify({
                 type: "APPLY_EMBED_DESIGN",
+                link: encrypted_link,
                 design,
                 testimonial: {
                     name,
@@ -65,7 +68,7 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
                     avatar
                 }
             }),
-            "http://localhost:5173/t/9161654e-79c8-4b0b-ab6b-647c5a213966"
+            `https://testimonials-smoky.vercel.app/t/${id}`
         )
     }, [design, name, message, avatar])
 
@@ -106,13 +109,27 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
             {/* <div className="w-[90%] mx-auto">
                 <EmbedRenderer design={design} testimonial={{ name: name, message: message, avatar: avatar }} />
             </div> */}
-            <iframe
+            {/* <iframe
                 ref={iframeRef}
                 src="http://localhost:5173/t/9161654e-79c8-4b0b-ab6b-647c5a213966"
                 className="w-full h-[20px] rounded-lg border"
                 title="Embed Preview"
-            />
+            /> */}
+            <p className="text-md text-gray-700 font-light">Live Preview</p>
             <Preview />
+            <div className="w-full mt-8">
+                <p className="text-lg font-semibold">Embed Code</p>
+                <div className="p-4 w-full">
+                    <CodeBlock
+                        text={`<script type="text/javascript" src="https://testimonials-smoky.vercel.app/js/iframeResizer.min.js"></script>
+<iframe id="testimonialto-embed-text--OK-${id}" src=${`${`https://testimonials-smoky.vercel.app/t/${id}`}`} frameborder="0" scrolling="no" width="100%"></iframe>
+<script type="text/javascript">iFrameResize({log: false, checkOrigin: false}, "#testimonialto-embed-text--Ok-${id}");</script>`}
+                        showLineNumbers={true}
+                        language="js"
+                        theme={dracula}
+                    />
+                </div>
+            </div>
         </div>
     )
 }
