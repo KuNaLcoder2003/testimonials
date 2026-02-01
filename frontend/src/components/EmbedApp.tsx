@@ -31,7 +31,7 @@ export default function EmbedApp() {
         const payload = decodePayload(encoded)
         console.log('Decoded is ', payload)
         setDesign(payload.design)
-        setTestimonial(payload.testimonail)
+        setTestimonial(payload.testimonial)
     }, [])
 
     return <EmbedRenderer design={design} testimonial={testimonial} />
