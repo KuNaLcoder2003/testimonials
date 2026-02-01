@@ -14,6 +14,7 @@ type EmbedDesign = {
     borderWidth: number
 }
 export default function Preview() {
+    const channel = new BroadcastChannel("embed-preview")
     const [design, setDesign] = useState<EmbedDesign>(localStorage.getItem('design') ? JSON.parse(localStorage.getItem('design') as string) as EmbedDesign : {
         layout: "Left Aligned",
         margin: 2,
@@ -31,6 +32,10 @@ export default function Preview() {
 
     useEffect(() => {
         const handler = (e: MessageEvent) => {
+            channel.onmessage = (event) => {
+                console.log('Boradastinf channel : ', event.data)
+            }
+
             if (e.origin !== "https://testimonials-smoky.vercel.app") return;
             console.log(JSON.parse(e.data))
             const recvd_data = JSON.parse(e.data)

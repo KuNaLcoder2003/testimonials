@@ -45,7 +45,7 @@ const tabs = [
 type DesignOption = "Left Aligned" | "Left Aligned-Bold" | "With Large Image" | "Simple Centered"
 const designTabs: DesignOption[] = ["Left Aligned", "Left Aligned-Bold", "Simple Centered", "With Large Image"]
 const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string, encrypted_link: string, id: string }> = ({ message, name, avatar, id, encrypted_link }) => {
-
+    const channel = new BroadcastChannel("embed-preview")
     const [styleTab, setStyleTab] = useState<styleTabs>("Design")
     const [designOption, setDesignOption] = useState<DesignOption>("Left Aligned")
 
@@ -56,6 +56,15 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
         borderWidth: 2
     })
     useEffect(() => {
+        channel.postMessage({
+            design,
+            testimonial: {
+                name,
+                avatar,
+                message
+            }
+        })
+
         window.postMessage(
             JSON.stringify({
                 type: "APPLY_EMBED_DESIGN",
