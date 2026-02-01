@@ -13,6 +13,7 @@ import Space from './pages/Space'
 // import { EmbedRenderer } from './components/EmbedRenderer'
 // import { useEffect, useState } from 'react'
 import Preview from './components/Preview'
+import EmbedApp from './components/EmbedApp'
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
           </ProtectedRoute>} />
       <Route path='/space/:id' element={<Space />} />
       <Route path='/t/:id' element={<Preview />} />
+      <Route path='/embed/:id' element={<EmbedApp />} />
     </Routes>
 
 
