@@ -9,6 +9,7 @@ const DEFAULT_DESIGN = {
 
 export default function EmbedApp() {
     const initial = (window as any).__EMBED_DATA__
+    console.log(initial);
 
     const [design] = useState(initial?.design ?? DEFAULT_DESIGN)
     const [testimonial] = useState(
