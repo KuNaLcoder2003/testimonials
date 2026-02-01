@@ -16,11 +16,14 @@ function decodePayload(encoded: string) {
 }
 
 export default function EmbedApp() {
-    const initial = (window as any).__EMBED_DATA__
-    console.log(initial);
+    const params = new URLSearchParams(window.location.search)
+    let encoded = params.get("data") as string;
+    const payload = decodePayload(encoded)
+    console.log('Decoded is ', payload)
 
-    const [design, setDesign] = useState<any>()
-    const [testimonial, setTestimonial] = useState<any>()
+
+    const [design, setDesign] = useState<any>(payload.design)
+    const [testimonial, setTestimonial] = useState<any>(payload.testimonial)
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search)
