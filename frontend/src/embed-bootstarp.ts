@@ -9,4 +9,4 @@ function decodePayload(encoded: string) {
 const params = new URLSearchParams(window.location.search)
 const encoded = params.get("data") as string;
 (window as any).__EMBED_DATA__ = encoded ? decodePayload(encoded) : null
-console.log(decodePayload(encoded))
+console.log("BOOTSTRAP DATA:", (window as any).__EMBED_DATA__)

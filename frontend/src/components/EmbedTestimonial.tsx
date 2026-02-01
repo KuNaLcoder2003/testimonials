@@ -49,6 +49,7 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
     const channel = new BroadcastChannel("embed-preview")
     const [styleTab, setStyleTab] = useState<styleTabs>("Design")
     const [designOption, setDesignOption] = useState<DesignOption>("Left Aligned")
+    let payload = ""
 
     // const iframeRef = useRef<HTMLIFrameElement>(null)
     const [design, setDesign] = useState<EmbedDesign>({
@@ -79,12 +80,11 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
             }),
             `https://testimonials-smoky.vercel.app`
         )
+        payload = encodeEmbedPayload({
+            design,
+            testimonial: { name, message, avatar }
+        })
     }, [design, name, message, avatar])
-
-    const payload = encodeEmbedPayload({
-        design,
-        testimonial: { name, message, avatar }
-    })
 
     return (
         <div className="w-full p-4 space-y-4">

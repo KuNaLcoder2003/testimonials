@@ -26,7 +26,7 @@ export default function EmbedApp() {
         const params = new URLSearchParams(window.location.search)
         let encoded = params.get("data") as string;
         const payload = decodePayload(encoded)
-        console.log(payload)
+        console.log('Decoded is ', payload)
         setDesign(payload.design)
         setTestimonial(payload.testimonail)
     }, [])
