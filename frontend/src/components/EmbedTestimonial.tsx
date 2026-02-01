@@ -5,6 +5,7 @@ import { BsBorder } from "react-icons/bs";
 import "iframe-resizer/js/iframeResizer.contentWindow";
 import Preview from "./Preview";
 import { CodeBlock, dracula } from 'react-code-blocks';
+import { encodeEmbedPayload } from "../util";
 // import Preview from "./Preview";
 
 
@@ -80,6 +81,11 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
         )
     }, [design, name, message, avatar])
 
+    const payload = encodeEmbedPayload({
+        design,
+        testimonial: { name, message, avatar }
+    })
+
     return (
         <div className="w-full p-4 space-y-4">
             <div className="flex items-center gap-4">
@@ -130,7 +136,7 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
                 <div className="p-4 w-full">
                     <CodeBlock
                         text={`<script type="text/javascript" src="https://testimonials-smoky.vercel.app/js/iframeResizer.min.js"></script>
-<iframe id="testimonialto-embed-text--OK-${id}" src=${`${`https://testimonials-smoky.vercel.app/t/${id}`}`} frameborder="0" scrolling="no" width="100%"></iframe>
+<iframe id="testimonialto-embed-text--OK-${id}" src=${`https://testimonials-smoky.vercel.app/embed/${id}?data=${payload}`} frameborder="0" scrolling="no" width="100%"></iframe>
 <script type="text/javascript">iFrameResize({log: false, checkOrigin: false}, "#testimonialto-embed-text--Ok-${id}");</script>`}
                         showLineNumbers={true}
                         language="js"

@@ -13,15 +13,24 @@ type EmbedDesign = {
     margin: number
     borderWidth: number
 }
+type Testimonail = {
+    name: string,
+    message: string,
+    avatar: string
+}
 export default function Preview() {
     const channel = new BroadcastChannel("embed-preview")
-    const [design, setDesign] = useState<EmbedDesign>({
+    const [design, setDesign] = useState<EmbedDesign>(localStorage.getItem('design') ? JSON.parse(localStorage.getItem('design') as string) as EmbedDesign : {
         layout: "Left Aligned",
         margin: 2,
         borderWidth: 2
     });
     // const path = useLocation();
-    const [testimonial, setTestimonial] = useState<any>();
+    const [testimonial, setTestimonial] = useState<Testimonail>(localStorage.getItem('testimonial') ? JSON.parse(localStorage.getItem('testimonial') as string) : {
+        name: "Kunal",
+        message: "Yoooooo we are trying our best",
+        avatar: ""
+    });
 
 
 
