@@ -736,7 +736,7 @@ export default EmbedTestiMonial;
 export const LeftAlignedDesign: React.FC<{ name: string, message: string, avatar: string, design?: EmbedDesign }> = ({ message, name, avatar, design }) => {
     return (
         <div style={{
-            backgroundColor: "teal",
+            background: `${design?.background ? design.background : "teal"}`,
             padding: `${design?.margin}rem`,
             borderWidth: `${design?.borderWidth}px`,
             borderRadius: `${design?.borderRadius}`,
@@ -762,7 +762,7 @@ export const LeftAlignedDesign: React.FC<{ name: string, message: string, avatar
 export const LargeImageDesign: React.FC<{ name: string, message: string, avatar: string, design: EmbedDesign }> = ({ message, name, avatar, design }) => {
     return (
         <div style={{
-            backgroundColor: "teal",
+            background: `${design?.background ? design.background : "teal"}`,
             padding: `${design?.margin}rem`,
             borderWidth: `${design?.borderWidth}px`,
             borderRadius: `${design?.borderRadius}`,
