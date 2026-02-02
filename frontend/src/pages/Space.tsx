@@ -219,7 +219,7 @@ const Space: React.FC = () => {
                 </div> : <div className="relative flex h-screen w-full bg-white">
                     <Navbar display={false} />
                     {
-                        openActionModal && selectedTestimonail && <ActionModal heading="Embed this testimonial to your website" subheading="With just quick copy paste" close={setOpenActionModal} children={<EmbedTestiMonial id={selectedTestimonail.id} encrypted_link={selectedTestimonail.encrypted_link} name={selectedTestimonail.name} message={selectedTestimonail.message} avatar={selectedTestimonail.avatar} />} />
+                        openActionModal && selectedTestimonail && <ActionModal heading="Embed this testimonial to your website" subheading="With just quick copy paste" close={setOpenActionModal} children={<EmbedTestiMonial close={setOpenActionModal} id={selectedTestimonail.id} encrypted_link={selectedTestimonail.encrypted_link} name={selectedTestimonail.name} message={selectedTestimonail.message} avatar={selectedTestimonail.avatar} />} />
                     }
                     <div className="h-full w-full flex items-end">
                         <ToastContainer position="bottom-center"
@@ -382,8 +382,8 @@ const Space: React.FC = () => {
 
 const ActionModal: React.FC<{ children: ReactNode, heading: string, subheading: string, close: React.Dispatch<React.SetStateAction<boolean>> }> = ({ children, heading, subheading, close }) => {
     return (
-        <div className="absolute inset-0 h-full w-full flex items-center justify-center bg-black/20 z-[9999999]">
-            <div className="w-6xl mx-auto bg-white h-auto space-y-4 p-6">
+        <div className="absolute inset-0 h-screen w-full flex items-center justify-center bg-black/20 z-[9999999] p-6">
+            <div className="w-6xl mx-auto bg-white h-screen space-y-4 p-6 overflow-y-scroll my-10">
                 <div className="flex w-full items-baseline justify-between">
                     <div className="flex flex-col items-baseline gap-1">
                         <h2 className="text-xl font-semibold">{heading}</h2>
