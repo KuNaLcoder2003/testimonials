@@ -457,6 +457,7 @@ const ShadowTab: React.FC<{ setDesign: React.Dispatch<React.SetStateAction<Embed
 
 const BackgroundTab: React.FC<{ setDesign: React.Dispatch<React.SetStateAction<EmbedDesign>> }> = ({ setDesign }) => {
     const backgroundColors = [
+        { id: "BorderColor-0", type: "color", name: "White", hex: "#fff" },
         { id: "BorderColor-1", type: "color", name: "Soft Red", hex: "#FF6B6B" },
         { id: "BorderColor-2", type: "color", name: "Pink Rose", hex: "#F06595" },
         { id: "BorderColor-3", type: "color", name: "Purple", hex: "#CC5DE8" },
