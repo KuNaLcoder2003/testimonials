@@ -1,8 +1,9 @@
 import type React from "react";
 import useCollector from "../hooks/useCollector";
 import { Pencil, Video, X } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
+
 type ThankYou = {
     message: string;
     id: string;
@@ -23,7 +24,9 @@ const Collect: React.FC = () => {
         const { question_1, question_2, question_3, question_4, question_5 } = collectorCard
         questions = [question_1, question_2, question_3, question_4, question_5]
     }
-    const [isOpen, setIsOpen] = useState<boolean>(false)
+    const [isOpen, setIsOpen] = useState<string>("")
+
+
 
     return (
         <>
@@ -37,8 +40,13 @@ const Collect: React.FC = () => {
                     </div>
                 </div> : collectorCard ? <div className="w-screen h-screen flex items-center justify-center relative">
                     {
-                        isOpen && <div className="absolute h-screen inset-0 bg-black/20 flex items-center justify-center z-[99999]">
+                        isOpen.length > 0 && isOpen == "Text" && <div className="absolute h-screen inset-0 bg-black/20 flex items-center justify-center z-[99999]">
                             <TextTestimonialPopUp space_id={space} submitHander={submitTestimonials} closeModal={setIsOpen} questions={questions} space_image={collectorCard.space_image} />
+                        </div>
+                    }
+                    {
+                        isOpen.length > 0 && isOpen == "Video" && <div className="absolute h-screen inset-0 bg-black/20 flex items-center justify-center z-[99999]">
+                            <VideoRecordingPopUp closeModal={setIsOpen} />
                         </div>
                     }
                     {
@@ -87,10 +95,10 @@ const Collect: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-2 mt-6">
-                                    <button className="w-full bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 cursor-pointer">
+                                    <button onClick={() => setIsOpen("Video")} className="w-full bg-blue-600 text-white py-2 rounded-lg flex items-center justify-center gap-2 cursor-pointer">
                                         Record a video <Video />
                                     </button>
-                                    <button onClick={() => setIsOpen(true)} className="w-full bg-black/70 text-white py-2 rounded-lg flex items-center justify-center gap-2 cursor-pointer">
+                                    <button onClick={() => setIsOpen("Text")} className="w-full bg-black/70 text-white py-2 rounded-lg flex items-center justify-center gap-2 cursor-pointer">
                                         Send in text <Pencil />
                                     </button>
                                 </div>
@@ -105,8 +113,87 @@ const Collect: React.FC = () => {
     )
 }
 
+const VideoRecordingPopUp: React.FC<{ closeModal: React.Dispatch<React.SetStateAction<string>> }> = ({ closeModal }) => {
+    const previewRef = useRef<HTMLVideoElement | null>(null)
+    const recordingRef = useRef<HTMLVideoElement | null>(null)
+    let recordingTimeMS = 15000;
 
-const TextTestimonialPopUp: React.FC<{ space_image: string, questions: string[], closeModal: React.Dispatch<React.SetStateAction<boolean>>, submitHander: (formData: FormData) => Promise<SubmitResponse>, space_id: string }> = ({ space_image, questions, closeModal, submitHander, space_id }) => {
+    function log(msg: string) {
+        console.log(msg)
+    }
+    const wait = (delay: number) =>
+        new Promise<void>((resolve) => setTimeout(resolve, delay));
+
+    const startRecording = async (stream: MediaStream, lengthInMS: number) => {
+        let recorder = new MediaRecorder(stream); // will handle recording the input stream
+        let data: Blob[] = []; // is an array, initially empty, that holds the Blobs of media data provided to our ondataavailable event handler.
+        recorder.ondataavailable = (event => {
+            data.push(event.data)
+        })
+        recorder.start()
+        log(`${recorder.state} for ${lengthInMS / 1000} seconds`)
+        let stopped = new Promise((resolve, reject) => {
+            recorder.onstop = resolve
+            recorder.onerror = (event) => reject(event.type);
+        })
+        let recorded = wait(recordingTimeMS).then(() => {
+            if (recorder.state == "recording") {
+                recorder.stop()
+            }
+        })
+        return Promise.all([stopped, recorded]).then(() => data);
+    }
+    function stop(stream: MediaStream) {
+        stream.getTracks().forEach((track) => track.stop());
+    }
+    async function handleStartRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: true
+            });
+
+            if (previewRef.current) {
+                previewRef.current.srcObject = stream;
+                previewRef.current.muted = true;
+                await previewRef.current.play();
+            }
+
+            const recordedChunks = await startRecording(stream, recordingTimeMS);
+            const recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
+
+            if (recordingRef.current) {
+                recordingRef.current.src = URL.createObjectURL(recordedBlob);
+                recordingRef.current.controls = true;
+                await recordingRef.current.play();
+            }
+
+            console.log("Recorded:", recordedBlob.size);
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    return (
+        <div className="w-lg m-auto h-auto p-4 flex flex-col items-baseline gap-1 bg-white">
+            <div className="flex items-center w-full justify-between">
+                <h2 className="">Record your experience</h2>
+                <X onClick={() => closeModal("")} className="cursor-pointer" />
+            </div>
+            <div className="w-full flex flex-col items-baseline">
+                <button className="text-white text-md text-center bg-blue-600 px-6 py-2 rounded-lg cursor-pointer" onClick={() => { handleStartRecording() }}>Start Recording</button>
+                <video ref={previewRef} className="w-full h-42" muted></video>
+            </div>
+            <div className="w-full flex flex-col items-baseline">
+                <button className="text-white text-md text-center bg-red-600 px-6 py-2 rounded-lg cursor-pointer" onClick={() => stop(previewRef.current?.srcObject as MediaStream)}>Stop Recording</button>
+                <video ref={recordingRef} className="w-full h-42" ></video>
+            </div>
+        </div>
+    )
+}
+
+
+const TextTestimonialPopUp: React.FC<{ space_image: string, questions: string[], closeModal: React.Dispatch<React.SetStateAction<string>>, submitHander: (formData: FormData) => Promise<SubmitResponse>, space_id: string }> = ({ space_image, questions, closeModal, submitHander, space_id }) => {
     const [review, setReview] = useState<string>("")
     const [attachment, setAttachment] = useState<File | null>(null)
     const [userImage, setUserImage] = useState<File | null>(null)
@@ -173,7 +260,7 @@ const TextTestimonialPopUp: React.FC<{ space_image: string, questions: string[],
                             : <div className="w-lg m-auto min-h-[97%] p-4 flex flex-col items-baseline gap-1 bg-white">
                                 <div className="flex items-center w-full justify-between">
                                     <h2 className="">Write text testimonial to</h2>
-                                    <X onClick={() => closeModal(false)} className="cursor-pointer" />
+                                    <X onClick={() => closeModal("")} className="cursor-pointer" />
                                 </div>
                                 <div className="flex flex-col gap-1 w-full mt-4">
                                     {space_image ? (
