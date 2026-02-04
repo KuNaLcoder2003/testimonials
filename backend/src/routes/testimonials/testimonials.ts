@@ -30,6 +30,215 @@ export function encryptObject<T>(data: T): string {
     return Buffer.concat([iv, authTag, encrypted]).toString("base64");
 }
 
+testiMonialRouter.post('/text', upload.fields([
+    { name: 'avatar', maxCount: 1 },
+    { name: 'asset', maxCount: 1 }
+]), async (req: express.Request, res: express.Response) => {
+    try {
+        const { email, name, space_id, message } = req.body as NewTestimonial
+        if (!email || !name || !space_id || !message) {
+            res.status(400).json({
+                message: 'Bad request',
+                valid: false
+            })
+            return
+        }
+        const files = req.files as {
+            avatar: Express.Multer.File[],
+            asset: Express.Multer.File[]
+        }
+        if (!files) {
+            res.status(400).json({
+                message: 'Bad request',
+                valid: false
+            })
+            return
+        }
+        const avatar_file = files.avatar[0]
+        const asset_file = files.asset[0]
+        if (!avatar_file) {
+            res.status(400).json({
+                message: "Avatar file missing",
+                valid: false
+            })
+            return
+        }
+        const buffer_1 = Buffer.from(avatar_file.buffer)
+        const cloud_response_1 = await uploadAsset(buffer_1, "testimonial-user-image", "auto")
+        let buffer_2;
+        let cloud_response_2: any;
+        if (asset_file) {
+            buffer_2 = Buffer.from(asset_file.buffer)
+            cloud_response_2 = await uploadAsset(buffer_1, "testimonial-assets", "auto")
+        }
+        if (!cloud_response_1.valid) {
+            res.status(403).json({
+                message: "Unable to upload Image",
+                valid: false
+            })
+            return
+        }
+        const response = await prisma.$transaction(async (tx) => {
+            const new_testimonial = await tx.testimonial.create({
+                data: {
+                    space_id: space_id,
+                    type: "Text",
+                    message: message,
+                    avatar: cloud_response_1.url,
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                    name: name,
+                    email: email
+                }
+            })
+            if (cloud_response_2.valid) {
+                tx.image.create({
+                    data: {
+                        testimonial_id: new_testimonial.id,
+                        image_url: cloud_response_2.url
+                    }
+                })
+            }
+
+            const thankYou = await tx.thankYouPage.findFirst({
+                where: {
+                    space_id: space_id
+                },
+                select: {
+                    id: true,
+                    image_url: true,
+                    message: true,
+                    title: true
+                }
+            })
+            return { new_testimonial, thankYou }
+        }, { maxWait: 5000, timeout: 2000 })
+
+        if (!response || !response.new_testimonial) {
+            res.status(403).json({
+                message: "Unable to create testimonial",
+                valid: false
+            })
+            return
+        }
+        res.status(200).json({
+            thankYou: response.thankYou,
+            valid: true
+        })
+
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: "Something went wrong",
+            error: error,
+            valid: false
+        })
+    }
+})
+
+testiMonialRouter.post('/video', upload.single('vieo'), async (req: express.Request, res: express.Response) => {
+    try {
+        const { email, name, space_id } = req.body as NewTestimonial
+        if (!email || !name || !space_id) {
+            res.status(400).json({
+                message: "Bad requests",
+                valid: false
+            })
+            return
+        }
+        const file = req.file as Express.Multer.File
+        if (!file) {
+            res.status(400).json({
+                message: "Bad requests",
+                valid: false
+            })
+            return
+        }
+
+        const space = prisma.space.findUnique({
+            where: {
+                id: space_id
+            }
+        })
+        if (!space) {
+            res.status(400).json({
+                message: 'No more accepting testimonials for this page',
+                valid: false
+            })
+            return
+        }
+        const video_file_buffer = Buffer.from(file.buffer)
+        const cloudResponse = await uploadAsset(video_file_buffer, "video-testimonial", "auto")
+        if (!cloudResponse.valid) {
+            res.status(400).json({
+                message: "Bad requests",
+                valid: false
+            })
+            return
+        }
+
+        const response = await prisma.$transaction(async (tx) => {
+            const new_testimonial = await tx.testimonial.create({
+                data: {
+                    space_id: space_id,
+                    type: "Video",
+                    email: email,
+                    name: name,
+                    created_at: new Date(),
+                    updated_at: new Date(),
+                    title: "",
+                    message: "",
+                    avatar: ""
+                }
+            })
+            const video = await tx.video.create({
+                data: {
+                    testimonial_id: new_testimonial.id,
+                    video_url: cloudResponse.url,
+                }
+            })
+            const updated_space = await tx.space.update({
+                where: {
+                    id: space_id
+                },
+                data: {
+                    video_testimonial_count: {
+                        increment: 1
+                    }
+                }
+            })
+            const thankYou = await tx.thankYouPage.findFirst({
+                where: {
+                    space_id: space_id
+                },
+                select: {
+                    id: true,
+                    image_url: true,
+                    message: true,
+                    title: true
+                }
+            })
+            return { updated_space, video, new_testimonial, thankYou }
+        }, { maxWait: 5000, timeout: 2000 })
+        if (!response || !response.new_testimonial || !response.video || !response.updated_space || !response.thankYou) {
+            res.status(403).json({
+                message: "Unable to submit the testimonial",
+                valid: false
+            })
+            return
+        }
+        res.status(200).json({
+            thankYou: response.thankYou,
+            valid: true
+        })
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            message: 'Something went wrong',
+            valid: false
+        })
+    }
+})
 
 testiMonialRouter.post('/getTestimonial', authMiddleware, async (req: express.Request, res: express.Response) => {
     try {
