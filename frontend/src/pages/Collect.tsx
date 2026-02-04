@@ -17,7 +17,7 @@ interface SubmitResponse {
     thankYou?: ThankYou
 }
 const Collect: React.FC = () => {
-    const { collectorCard, loading, err, submitTestimonials, space } = useCollector()
+    const { collectorCard, loading, err, submitTextTestimonials, space, submitVideoTestimonials } = useCollector()
     let questions: string[] = []
 
     if (collectorCard) {
@@ -25,9 +25,6 @@ const Collect: React.FC = () => {
         questions = [question_1, question_2, question_3, question_4, question_5]
     }
     const [isOpen, setIsOpen] = useState<string>("")
-
-
-
     return (
         <>
 
@@ -41,12 +38,12 @@ const Collect: React.FC = () => {
                 </div> : collectorCard ? <div className="w-screen h-screen flex items-center justify-center relative">
                     {
                         isOpen.length > 0 && isOpen == "Text" && <div className="absolute h-screen inset-0 bg-black/20 flex items-center justify-center z-[99999]">
-                            <TextTestimonialPopUp space_id={space} submitHander={submitTestimonials} closeModal={setIsOpen} questions={questions} space_image={collectorCard.space_image} />
+                            <TextTestimonialPopUp space_id={space} submitHander={submitTextTestimonials} closeModal={setIsOpen} questions={questions} space_image={collectorCard.space_image} />
                         </div>
                     }
                     {
                         isOpen.length > 0 && isOpen == "Video" && <div className="absolute h-screen inset-0 bg-black/20 flex items-center justify-center z-[99999]">
-                            <VideoRecordingPopUp closeModal={setIsOpen} />
+                            <VideoRecordingPopUp closeModal={setIsOpen} space_id={space} submit={submitVideoTestimonials} />
                         </div>
                     }
                     {
@@ -113,20 +110,19 @@ const Collect: React.FC = () => {
     )
 }
 
-const VideoRecordingPopUp: React.FC<{ closeModal: React.Dispatch<React.SetStateAction<string>> }> = ({ closeModal }) => {
+const VideoRecordingPopUp: React.FC<{ closeModal: React.Dispatch<React.SetStateAction<string>>, space_id: string, submit: (formData: FormData) => Promise<SubmitResponse> }> = ({ closeModal, space_id, submit }) => {
     const previewRef = useRef<HTMLVideoElement | null>(null)
     const recordingRef = useRef<HTMLVideoElement | null>(null)
     const streamRef = useRef<MediaStream | null>(null)
     const [deviceInfo, setDeviceInfo] = useState<{ camera?: string; mic?: string }>({})
     const [blob, setBlob] = useState<Blob | null>(null)
-
+    const [userDetails, setUserDetails] = useState({
+        name: "",
+        email: ""
+    })
+    const [thankYou, setThankYou] = useState<ThankYou | null>(null)
+    const [submitting, setSubmitting] = useState<boolean>(false)
     let recordingTimeMS = 4000;
-
-    // function log(msg: string) {
-    //     console.log(msg)
-    // }
-
-
     const startRecording = async (stream: MediaStream, lengthInMS: number) => {
 
         return new Promise((resolve, reject) => {
@@ -217,74 +213,159 @@ const VideoRecordingPopUp: React.FC<{ closeModal: React.Dispatch<React.SetStateA
         }
     }
 
+    async function handleVideoTestimonailSubmit() {
+        try {
+            if (!blob) {
+                return
+            }
+            const videoFile = new File(
+                [blob],
+                "recording.webm",
+                { type: "video/webm" }
+            )
+            const formData = new FormData();
+
+            formData.append('vieo', videoFile)
+            formData.append('name', userDetails.name)
+            formData.append('email', userDetails.email)
+            formData.append('space_id', space_id)
+            const { thankYou, err, valid } = await submit(formData)
+            if (!valid || !thankYou) {
+                toast.error(err || "Error")
+                setThankYou(null)
+                setSubmitting(false)
+                return
+            }
+            setThankYou(thankYou)
+            setSubmitting(false)
+
+        } catch (error) {
+            setSubmitting(false)
+            console.log(error)
+            setThankYou(null)
+        }
+    }
+
     return (
-        <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
-            {/* Header */}
-            <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">
-                    🎥 Record your experience
-                </h2>
-                <X
-                    onClick={() => closeModal("")}
-                    className="h-5 w-5 cursor-pointer text-gray-500 hover:text-gray-800"
-                />
-            </div>
+        <>
+            {
+                submitting ? <div className="w-full h-full flex items-center justify-center">
+                    <div className="flex flex-row gap-2">
+                        <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce"></div>
+                        <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.3s]"></div>
+                        <div className="w-4 h-4 rounded-full bg-blue-700 animate-bounce [animation-delay:-.5s]"></div>
+                    </div>
+                </div> : thankYou ? <div className="lg:sticky lg:top-6 h-fit mx-auto max-w-lg">
+                    <div className="rounded-xl shadow-sm p-6 flex flex-col justify-center gap-6 min-h-90 bg-white">
+                        <div className="w-[100%] h-[70%] mx-auto">
+                            <img className="w-full h-full object-cover rounded-lg" src={thankYou.image_url} />
+                        </div>
+                        <h3 className="text-3xl font-semibold text-gray-400 text-center">{thankYou.title}</h3>
+                        <p className="text-md font-light text-gray-400 text-center">{thankYou.message}</p>
+                    </div>
+                </div> : <div className="w-lg m-auto min-h-[97%] p-4 flex flex-col items-baseline gap-4 bg-white rounded-xl shadow-sm">
+                    {/* Header */}
+                    <div className="flex items-center w-full justify-between">
+                        <h2 className="text-lg font-semibold text-gray-800">
+                            Record video testimonial
+                        </h2>
+                        <X
+                            onClick={() => closeModal("")}
+                            className="cursor-pointer text-gray-500 hover:text-gray-800"
+                        />
+                    </div>
 
-            {/* Live Preview */}
-            <div className="mb-6 rounded-xl border bg-gray-50 p-4">
-                <p className="mb-2 text-sm font-medium text-gray-600">
-                    Live Preview
-                </p>
+                    {/* Live Preview */}
+                    <div className="w-full mt-4 space-y-2">
+                        <h3 className="text-md font-semibold text-gray-700">Live Preview</h3>
 
-                <div className="overflow-hidden rounded-lg bg-black">
-                    <video
-                        ref={previewRef}
-                        className="h-48 w-full object-cover"
-                        muted
-                    />
+                        <div className="overflow-hidden rounded-lg bg-black border">
+                            <video
+                                ref={previewRef}
+                                className="h-52 w-full object-cover"
+                                muted
+                            />
+                        </div>
+
+                        {/* Device Info */}
+                        <div className="rounded-lg bg-gray-50 px-4 py-2 text-xs text-gray-600 border">
+                            <p className="font-medium text-gray-700 mb-1">Devices in use</p>
+                            <p>🎥 Camera: {deviceInfo.camera || "Not detected"}</p>
+                            <p>🎙️ Microphone: {deviceInfo.mic || "Not detected"}</p>
+                        </div>
+
+                        {/* Controls */}
+                        <div className="flex gap-3 mt-3">
+                            <button
+                                onClick={handleStartRecording}
+                                className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                            >
+                                ⏺ Start Recording
+                            </button>
+
+                            <button
+                                onClick={() => stop(streamRef.current)}
+                                className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                            >
+                                ⏹ Stop
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Recorded Video */}
+                    <div className="w-full mt-6 space-y-2">
+                        <h3 className="text-md font-semibold text-gray-700">Recorded Video</h3>
+                        <div className="overflow-hidden rounded-lg bg-black border">
+                            <video
+                                ref={recordingRef}
+                                className="h-52 w-full object-cover"
+                                controls
+                            />
+                        </div>
+                    </div>
+
+                    {/* Name */}
+                    <div className="w-full space-y-1 mt-6">
+                        <p className="text-sm font-light text-gray-500">
+                            Your Name <span className="text-red-500">*</span>
+                        </p>
+                        <input
+                            value={userDetails.name}
+                            onChange={(e) => setUserDetails({ ...userDetails, name: e.target.value })}
+                            type="text"
+                            className="border rounded-lg border-stone-300 w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your name"
+                        />
+                    </div>
+
+                    {/* Email */}
+                    <div className="w-full space-y-1 mt-4">
+                        <p className="text-sm font-light text-gray-500">
+                            Your Email <span className="text-red-500">*</span>
+                        </p>
+                        <input
+                            value={userDetails.email}
+                            onChange={(e) => setUserDetails({ ...userDetails, email: e.target.value })}
+                            type="email"
+                            className="border rounded-lg border-stone-300 w-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="Enter your email"
+                        />
+                    </div>
+
+                    {/* Submit */}
+                    <div className="w-full flex items-center justify-end mt-6">
+                        <button
+                            onClick={handleVideoTestimonailSubmit}
+                            disabled={!blob}
+                            className={`px-6 py-2 rounded-lg text-sm font-medium text-white 
+            ${blob ? "bg-blue-600 hover:bg-blue-700" : "bg-blue-300 cursor-not-allowed"}`}
+                        >
+                            Submit
+                        </button>
+                    </div>
                 </div>
-
-                {/* Device Info */}
-                <div className="mt-3 rounded-lg bg-white p-3 text-xs text-gray-700 shadow-sm">
-                    <p className="mb-1 font-medium text-gray-600">Devices in use</p>
-                    <p>🎥 Camera: {deviceInfo.camera || "Not detected"}</p>
-                    <p>🎙️ Microphone: {deviceInfo.mic || "Not detected"}</p>
-                </div>
-
-                {/* Controls */}
-                <div className="mt-4 flex gap-3">
-                    <button
-                        onClick={handleStartRecording}
-                        className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-                    >
-                        ⏺ Start Recording
-                    </button>
-
-                    <button
-                        onClick={() => stop(streamRef.current as MediaStream)}
-                        className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
-                    >
-                        ⏹ Stop
-                    </button>
-                </div>
-            </div>
-
-            {/* Recorded Video */}
-            <div className="rounded-xl border bg-gray-50 p-4">
-                <p className="mb-2 text-sm font-medium text-gray-600">
-                    Recorded Video
-                </p>
-
-                <div className="overflow-hidden rounded-lg bg-black">
-                    <video
-                        ref={recordingRef}
-                        className="h-48 w-full object-cover"
-                        controls
-                    />
-                </div>
-            </div>
-        </div>
-
+            }
+        </>
     )
 }
 
@@ -453,5 +534,4 @@ const TextTestimonialPopUp: React.FC<{ space_image: string, questions: string[],
         </>
     )
 }
-
 export default Collect;
