@@ -67,17 +67,15 @@ const useCollector = () => {
         }
     }, [space])
 
-    const submitTestimonials = async (formData: FormData): Promise<SubmitResponse> => {
+    const submitTextTestimonials = async (formData: FormData): Promise<SubmitResponse> => {
         if (!formData) {
             return { err: "Please provide complete data", valid: false }
         }
-        const token = localStorage.getItem('token') as string
+
         try {
-            const reposne = await fetch(`${BACKEND_URL}/testimonial`, {
+            const reposne = await fetch(`${BACKEND_URL}/testimonial/text`, {
                 method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                },
+
                 body: formData
             })
             const data = await reposne.json()
@@ -91,7 +89,28 @@ const useCollector = () => {
             return { err: "Something went wrong", valid: false }
         }
     }
-    return { collectorCard, loading, err, submitTestimonials, space }
+    const submitVideoTestimonials = async (formData: FormData): Promise<SubmitResponse> => {
+        if (!formData) {
+            return { err: "Please provide complete data", valid: false }
+        }
+        try {
+            const reposne = await fetch(`${BACKEND_URL}/testimonial/video`, {
+                method: 'POST',
+
+                body: formData
+            })
+            const data = await reposne.json()
+            if (!data || !data.valid) {
+                return { err: data.message, valid: false }
+            } else {
+                // sessionStorage.setItem(`submitted:${space}`, "true")
+                return { valid: true, thankYou: data.thankYou }
+            }
+        } catch (error) {
+            return { err: "Something went wrong", valid: false }
+        }
+    }
+    return { collectorCard, loading, err, submitTextTestimonials, space, submitVideoTestimonials }
 }
 
 export default useCollector;
