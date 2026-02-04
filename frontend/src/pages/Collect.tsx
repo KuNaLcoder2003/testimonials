@@ -116,79 +116,175 @@ const Collect: React.FC = () => {
 const VideoRecordingPopUp: React.FC<{ closeModal: React.Dispatch<React.SetStateAction<string>> }> = ({ closeModal }) => {
     const previewRef = useRef<HTMLVideoElement | null>(null)
     const recordingRef = useRef<HTMLVideoElement | null>(null)
-    let recordingTimeMS = 15000;
+    const streamRef = useRef<MediaStream | null>(null)
+    const [deviceInfo, setDeviceInfo] = useState<{ camera?: string; mic?: string }>({})
+    const [blob, setBlob] = useState<Blob | null>(null)
 
-    function log(msg: string) {
-        console.log(msg)
-    }
-    const wait = (delay: number) =>
-        new Promise<void>((resolve) => setTimeout(resolve, delay));
+    let recordingTimeMS = 4000;
+
+    // function log(msg: string) {
+    //     console.log(msg)
+    // }
+
 
     const startRecording = async (stream: MediaStream, lengthInMS: number) => {
-        let recorder = new MediaRecorder(stream); // will handle recording the input stream
-        let data: Blob[] = []; // is an array, initially empty, that holds the Blobs of media data provided to our ondataavailable event handler.
-        recorder.ondataavailable = (event => {
-            data.push(event.data)
-        })
-        recorder.start()
-        log(`${recorder.state} for ${lengthInMS / 1000} seconds`)
-        let stopped = new Promise((resolve, reject) => {
-            recorder.onstop = resolve
-            recorder.onerror = (event) => reject(event.type);
-        })
-        let recorded = wait(recordingTimeMS).then(() => {
-            if (recorder.state == "recording") {
-                recorder.stop()
+
+        return new Promise((resolve, reject) => {
+            // We have to first get user's video and audio , that will send some data (mainly video and audio)
+            // also the type of Data is MediaStream 
+            // MediaStream is basically a pipeline that contains chunks / tracks / stream of data (video or audio) from the input device
+            // The chunks / tracks / stream is an extention of MediaStreamTrack interface , that holds list of data for video from camera or audio from microphone
+            // these will be provided in the arguments
+
+            // Now we have the data(stream) available to record ,
+            // We define a recorder of Type MediaRecorder that will handle the recording of the incoming stream
+            const recorder: MediaRecorder = new MediaRecorder(stream)
+
+            // Now we initailaize an array that has Blob's (file-like object of immutable, raw data) of media data , which will be provided on onDataAvailable event of MediaRecorder
+            let streamData: Blob[] = []
+            recorder.ondataavailable = ((event: BlobEvent) => {
+                streamData.push(event.data)
+            })
+            recorder.onerror = (e) => reject(e)
+
+            // when the data is available , we start the recorder
+            recorder.start(1000);
+            setTimeout(() => {
+                if (recorder.state === "recording") {
+                    recorder.stop()
+                }
+            }, lengthInMS)
+
+            recorder.onstop = () => {
+                resolve(streamData)
             }
         })
-        return Promise.all([stopped, recorded]).then(() => data);
     }
-    function stop(stream: MediaStream) {
-        stream.getTracks().forEach((track) => track.stop());
+    function stop(stream: MediaStream | null) {
+        if (!stream) {
+            return
+        }
+        stream.getTracks().forEach(track => track.stop())
+    }
+    function getActiveDevices(stream: MediaStream) {
+        const videoTrack = stream.getVideoTracks()[0]
+        const audioTrack = stream.getAudioTracks()[0]
+        streamRef.current = stream
+        setDeviceInfo({
+            camera: stream.getVideoTracks()[0]?.label,
+            mic: stream.getAudioTracks()[0]?.label,
+        })
+
+        return {
+            camera: videoTrack?.label || "Camera",
+            microphone: audioTrack?.label || "Microphone",
+            videoSettings: videoTrack?.getSettings(),
+            audioSettings: audioTrack?.getSettings(),
+        }
     }
     async function handleStartRecording() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: true,
-                audio: true
-            });
-
+            const data: MediaStream = await window.navigator.mediaDevices.getUserMedia({
+                audio: true,
+                video: true
+            })
+            getActiveDevices(data)
             if (previewRef.current) {
-                previewRef.current.srcObject = stream;
-                previewRef.current.muted = true;
-                await previewRef.current.play();
+                previewRef.current.srcObject = data
+                previewRef.current.muted = true
+                // when the data is available , play the video being recorded
+                await previewRef.current.play()
             }
-
-            const recordedChunks = await startRecording(stream, recordingTimeMS);
-            const recordedBlob = new Blob(recordedChunks, { type: "video/webm" });
-
+            console.log('Hi')
+            // now we have the input(stream) coming form the media device , now we need to record it
+            const recordedChunks = await startRecording(data, recordingTimeMS) as Blob[]
+            console.log('Recorded streams : ', recordedChunks)
+            // now we create the recieved blob's array into a single blob onject
+            const recordedBlob = new Blob(recordedChunks, { type: "video/webm" })
+            console.log(recordedBlob)
             if (recordingRef.current) {
-                recordingRef.current.src = URL.createObjectURL(recordedBlob);
-                recordingRef.current.controls = true;
-                await recordingRef.current.play();
+                recordingRef.current.srcObject = null
+                recordingRef.current.src = URL.createObjectURL(recordedBlob)
+                recordingRef.current.controls = true
+                recordingRef.current.onloadedmetadata = () => {
+                    recordingRef.current?.play()
+                }
             }
+            setBlob(recordedBlob)
 
-            console.log("Recorded:", recordedBlob.size);
-        } catch (err) {
-            console.error(err);
+        } catch (error) {
+            console.log(error)
         }
     }
 
     return (
-        <div className="w-lg m-auto h-auto p-4 flex flex-col items-baseline gap-1 bg-white">
-            <div className="flex items-center w-full justify-between">
-                <h2 className="">Record your experience</h2>
-                <X onClick={() => closeModal("")} className="cursor-pointer" />
+        <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
+            {/* Header */}
+            <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">
+                    🎥 Record your experience
+                </h2>
+                <X
+                    onClick={() => closeModal("")}
+                    className="h-5 w-5 cursor-pointer text-gray-500 hover:text-gray-800"
+                />
             </div>
-            <div className="w-full flex flex-col items-baseline">
-                <button className="text-white text-md text-center bg-blue-600 px-6 py-2 rounded-lg cursor-pointer" onClick={() => { handleStartRecording() }}>Start Recording</button>
-                <video ref={previewRef} className="w-full h-42" muted></video>
+
+            {/* Live Preview */}
+            <div className="mb-6 rounded-xl border bg-gray-50 p-4">
+                <p className="mb-2 text-sm font-medium text-gray-600">
+                    Live Preview
+                </p>
+
+                <div className="overflow-hidden rounded-lg bg-black">
+                    <video
+                        ref={previewRef}
+                        className="h-48 w-full object-cover"
+                        muted
+                    />
+                </div>
+
+                {/* Device Info */}
+                <div className="mt-3 rounded-lg bg-white p-3 text-xs text-gray-700 shadow-sm">
+                    <p className="mb-1 font-medium text-gray-600">Devices in use</p>
+                    <p>🎥 Camera: {deviceInfo.camera || "Not detected"}</p>
+                    <p>🎙️ Microphone: {deviceInfo.mic || "Not detected"}</p>
+                </div>
+
+                {/* Controls */}
+                <div className="mt-4 flex gap-3">
+                    <button
+                        onClick={handleStartRecording}
+                        className="flex-1 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                    >
+                        ⏺ Start Recording
+                    </button>
+
+                    <button
+                        onClick={() => stop(streamRef.current as MediaStream)}
+                        className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700"
+                    >
+                        ⏹ Stop
+                    </button>
+                </div>
             </div>
-            <div className="w-full flex flex-col items-baseline">
-                <button className="text-white text-md text-center bg-red-600 px-6 py-2 rounded-lg cursor-pointer" onClick={() => stop(previewRef.current?.srcObject as MediaStream)}>Stop Recording</button>
-                <video ref={recordingRef} className="w-full h-42" ></video>
+
+            {/* Recorded Video */}
+            <div className="rounded-xl border bg-gray-50 p-4">
+                <p className="mb-2 text-sm font-medium text-gray-600">
+                    Recorded Video
+                </p>
+
+                <div className="overflow-hidden rounded-lg bg-black">
+                    <video
+                        ref={recordingRef}
+                        className="h-48 w-full object-cover"
+                        controls
+                    />
+                </div>
             </div>
         </div>
+
     )
 }
 
