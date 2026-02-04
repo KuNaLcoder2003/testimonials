@@ -49,12 +49,20 @@ model Testimonial {
   space Space @relation(fields: [space_id] , references: [id])
   images Image?
   embed Embed?
+  video Video?
 }
 
 model Image {
   id String @id @default(uuid())
   testimonial_id String @unique
   image_url String
+  testimonial Testimonial @relation(fields: [testimonial_id] , references: [id])
+}
+
+model Video {
+  id String @id @default(uuid())
+  testimonial_id String @unique
+  video_url String
   testimonial Testimonial @relation(fields: [testimonial_id] , references: [id])
 }
 
