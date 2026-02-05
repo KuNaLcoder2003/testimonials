@@ -99,8 +99,8 @@ const EmbedTestiMonial: React.FC<{ message: string, avatar: string, name: string
     }, [design, name, message, avatar])
 
     return (
-        <div className="w-full p-4 space-y-4 overflow-y-scroll">
-            <div className="flex items-center gap-4">
+        <div className="w-full p-4 space-y-6">
+            <div className="flex flex-wrap gap-4">
                 {
                     tabs.map((item) => {
                         return (
