@@ -15,7 +15,21 @@ const SECRET_KEY = crypto
     .update("Secret")
     .digest(); // 32 bytes
 const IV_LENGTH = 12;
-
+interface Testimonial {
+    id: string;
+    space_id: string;
+    type: string;
+    avatar: string;
+    message: string;
+    email: string;
+    name: string;
+    title: string;
+    company: string;
+    social_link: string;
+    created_at: Date;
+    updated_at: Date;
+    video_url?: string
+}
 export function encryptObject<T>(data: T): string {
     const iv = crypto.randomBytes(IV_LENGTH);
     const cipher = crypto.createCipheriv(ALGORITHM, SECRET_KEY, iv);
@@ -256,33 +270,36 @@ testiMonialRouter.post('/getTestimonial', authMiddleware, async (req: express.Re
                     space_id: space_id
                 }
             })
-            return { testimonials }
+            const videos = await tx.video.findMany({
+                where: {
+                    testimonial_id: {
+                        in: testimonials.map(item => item.id)
+                    }
+                }
+            })
+            const mergedArray: Testimonial[] = testimonials.map(item => {
+                let temp: Testimonial = { ...item }
+                videos.map(obj => {
+                    if (item.type.toLowerCase() == "video") {
+                        temp.video_url = obj.video_url
+                    }
+                })
+                return temp
+            })
+            return { mergedArray }
         }, { maxWait: 5000, timeout: 2000 })
 
-        if (!response || !response.testimonials) {
+        if (!response || !response.mergedArray) {
             res.status(403).json({
                 message: "Unable to fetch testimonials",
                 valid: false
             })
             return
         }
-        const testimonials = response.testimonials.map((item) => {
-            const payload = {
-                name: item.name,
-                message: item.message,
-                avatar: item.avatar
-            };
 
-
-            let obj = {
-                ...item,
-                encrypted_link: encryptObject(payload),
-            }
-            return obj;
-        })
         res.status(200).json({
             valid: true,
-            testimonials: testimonials
+            testimonials: response.mergedArray
         })
     } catch (error) {
         console.log(error)
