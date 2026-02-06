@@ -28,9 +28,9 @@ import { TbBucketOff } from "react-icons/tb"
 import { ImEmbed } from "react-icons/im"
 import { ToastContainer, toast } from "react-toastify"
 import EmbedTestiMonial from "../components/EmbedTestimonial"
+import EmbedVideoTestimonial from "../components/EmbedVideoTestimonial"
 
 type Testimonail = {
-    encrypted_link: string
     id: string
     space_id: string
     type: string
@@ -291,7 +291,7 @@ const Space: React.FC = () => {
                     close={setOpenActionModal}
                 >
                     {
-                        selectedTestimonail.type.toLowerCase() == 'text' ? <EmbedTestiMonial {...selectedTestimonail} close={setOpenActionModal} /> : <div>Video</div>
+                        selectedTestimonail.type.toLowerCase() == 'text' ? <EmbedTestiMonial {...selectedTestimonail} close={setOpenActionModal} /> : <EmbedVideoTestimonial close={close} testimonail={selectedTestimonail} />
                     }
                 </ActionModal>
             )}
