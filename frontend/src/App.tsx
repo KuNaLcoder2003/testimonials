@@ -32,7 +32,11 @@ function App() {
               <Dashboard />
             </UserProvider>
           </ProtectedRoute>} />
-      <Route path='/space/:id' element={<Space />} />
+      <Route path='/space/:id' element={<ProtectedRoute>
+        <UserProvider>
+          <Space />
+        </UserProvider>
+      </ProtectedRoute>} />
       <Route path='/t/:id' element={<Preview />} />
       <Route path='/embed/:id' element={<EmbedApp />} />
     </Routes>
