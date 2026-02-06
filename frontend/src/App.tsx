@@ -14,6 +14,7 @@ import Space from './pages/Space'
 // import { useEffect, useState } from 'react'
 import Preview from './components/Preview'
 import EmbedApp from './components/EmbedApp'
+import EmbedVideo from './components/EmbedVideo'
 
 
 function App() {
@@ -39,7 +40,7 @@ function App() {
       </ProtectedRoute>} />
       <Route path='/t/:id' element={<Preview />} />
       <Route path='/embed/:id' element={<EmbedApp />} />
-      <Route path='/embed/v/:id' element={<EmbedApp />} />
+      <Route path='/embed/v/:id' element={<EmbedVideo />} />
     </Routes>
 
 
