@@ -31,7 +31,7 @@ const EmbedVideo: React.FC = () => {
     let encoded = params.get("data") as string;
     const payload = decodePayload(encoded)
     const [tab] = useState<DesignOption>(payload.tab as DesignOption)
-    const [testimonail] = useState<Testimonail>(payload.testimonail as Testimonail)
+    const [testimonail] = useState<Testimonail>(payload.testimonial as Testimonail)
     return (
         <EmbedVideoRenderer tab={tab} testimonial={testimonail} />
     )
