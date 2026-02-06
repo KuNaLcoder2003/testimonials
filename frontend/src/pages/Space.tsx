@@ -1,6 +1,6 @@
 import type React from "react"
 import Navbar from "../components/Navbar"
-import { useEffect, useState, type JSX, type ReactNode } from "react"
+import { useEffect, useRef, useState, type JSX, type ReactNode } from "react"
 import {
     ArrowDown,
     ArrowUp,
@@ -16,6 +16,8 @@ import {
     Star,
     TagIcon,
     Video,
+    Play,
+    Pause,
     X
 } from "lucide-react"
 import { BsPeople, BsThreeDots } from "react-icons/bs"
@@ -59,7 +61,6 @@ type Action = {
 const BACKEND_URL = `${import.meta.env.VITE_BACKEND_URL}`
 
 const Space: React.FC = () => {
-    const notify = () => toast.success("Coming soon")
 
     function openEmbedTestiMonial() {
         setOpenActionModal(true)
@@ -162,7 +163,7 @@ const Space: React.FC = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 pt-16 flex">
+        <div className="min-h-screen bg-gray-50 pt-16 flex mb-10">
             <Navbar display={false} />
             <ToastContainer position="bottom-center" theme="light" />
 
@@ -215,62 +216,70 @@ const Space: React.FC = () => {
                 {/* Cards */}
                 <div className="max-w-5xl mx-auto space-y-6">
                     {testiMonials?.map((item) => (
-                        <div
-                            key={item.id}
-                            onClick={() => {
-                                setActiveTestimonial(item.id)
-                                setSelectedtestimonial(item)
-                            }}
-                            className="rounded-lg p-6 border border-red-100
-              shadow-sm hover:shadow-md transition-shadow"
-                        >
-                            <div className="flex justify-between items-center mb-3">
-                                <span className="text-xs px-3 py-1 rounded-full bg-white/70 text-gray-700">
-                                    {item.type}
-                                </span>
-                                <div className="flex gap-3 text-gray-500">
-                                    <Star size={15} />
-                                    <Heart size={15} />
-                                </div>
-                            </div>
+                        //             <div
+                        //                 key={item.id}
+                        //                 onClick={() => {
+                        //                     setActiveTestimonial(item.id)
+                        //                     setSelectedtestimonial(item)
+                        //                 }}
+                        //                 className="rounded-lg p-6 border border-red-100
+                        //   shadow-sm hover:shadow-md transition-shadow"
+                        //             >
+                        //                 <div className="flex justify-between items-center mb-3">
+                        //                     <span className="text-xs px-3 py-1 rounded-full bg-white/70 text-gray-700">
+                        //                         {item.type}
+                        //                     </span>
+                        //                     <div className="flex gap-3 text-gray-500">
+                        //                         <Star size={15} />
+                        //                         <Heart size={15} />
+                        //                     </div>
+                        //                 </div>
 
-                            <p className="text-sm text-gray-800 leading-relaxed">{item.message}</p>
+                        //                 <p className="text-sm text-gray-800 leading-relaxed">{item.message}</p>
 
-                            <div className="mt-4 flex justify-between items-center text-sm text-gray-600">
-                                <div className="flex items-center gap-2">
-                                    <img src={item.avatar} className="w-7 h-7 rounded-full" />
-                                    {item.name}
-                                </div>
-                                <span>{item.created_at.toString().split("T")[0]}</span>
-                            </div>
+                        //                 <div className="mt-4 flex justify-between items-center text-sm text-gray-600">
+                        //                     <div className="flex items-center gap-2">
+                        //                         <img src={item.avatar} className="w-7 h-7 rounded-full" />
+                        //                         {item.name}
+                        //                     </div>
+                        //                     <span>{item.created_at.toString().split("T")[0]}</span>
+                        //                 </div>
 
-                            <div className="mt-4 flex justify-end gap-3 relative">
-                                {actions.map((action) => {
-                                    const isOpen = openAction === action.id
-                                    return (
-                                        <div
-                                            key={action.id}
-                                            onClick={() => {
-                                                if (!action.subActions) {
-                                                    notify()
-                                                    setAction(null)
-                                                } else {
-                                                    setAction(isOpen ? null : action.id)
-                                                }
-                                            }}
-                                            className="text-xs flex items-center gap-1 px-3 py-2 rounded-md
-                      text-gray-600 hover:bg-white/70 transition cursor-pointer"
-                                        >
-                                            {action.icon}
-                                            {action.name}
-                                            {isOpen && action.subActions && activeTestimonial === item.id && (
-                                                <ActionPopUp subAction={action.subActions} />
-                                            )}
-                                        </div>
-                                    )
-                                })}
-                            </div>
-                        </div>
+                        //                 <div className="mt-4 flex justify-end gap-3 relative">
+                        //                     {actions.map((action) => {
+                        //                         const isOpen = openAction === action.id
+                        //                         return (
+                        //                             <div
+                        //                                 key={action.id}
+                        //                                 onClick={() => {
+                        //                                     if (!action.subActions) {
+                        //                                         notify()
+                        //                                         setAction(null)
+                        //                                     } else {
+                        //                                         setAction(isOpen ? null : action.id)
+                        //                                     }
+                        //                                 }}
+                        //                                 className="text-xs flex items-center gap-1 px-3 py-2 rounded-md
+                        //           text-gray-600 hover:bg-white/70 transition cursor-pointer"
+                        //                             >
+                        //                                 {action.icon}
+                        //                                 {action.name}
+                        //                                 {isOpen && action.subActions && activeTestimonial === item.id && (
+                        //                                     <ActionPopUp subAction={action.subActions} />
+                        //                                 )}
+                        //                             </div>
+                        //                         )
+                        //                     })}
+                        //                 </div>
+                        //             </div>
+                        <>
+                            {
+                                item.type.toLowerCase() == 'text' && <TextTestimonial actions={actions} setAction={setAction} setActiveTestimonial={setActiveTestimonial} setSelectedtestimonial={setSelectedtestimonial} item={item} openAction={openAction} activeTestimonial={activeTestimonial} />
+                            }{
+                                item.type.toLowerCase() == 'video' && <VideoTestimonial actions={actions} setAction={setAction} setActiveTestimonial={setActiveTestimonial} setSelectedtestimonial={setSelectedtestimonial} item={item} openAction={openAction} activeTestimonial={activeTestimonial} />
+                            }
+                        </>
+
                     ))}
                 </div>
             </main>
@@ -281,7 +290,9 @@ const Space: React.FC = () => {
                     subheading="Copy & paste into your website"
                     close={setOpenActionModal}
                 >
-                    <EmbedTestiMonial {...selectedTestimonail} close={setOpenActionModal} />
+                    {
+                        selectedTestimonail.type.toLowerCase() == 'text' ? <EmbedTestiMonial {...selectedTestimonail} close={setOpenActionModal} /> : <div>Video</div>
+                    }
                 </ActionModal>
             )}
         </div>
@@ -331,5 +342,164 @@ const ActionPopUp: React.FC<{ subAction: any[] }> = ({ subAction }) => (
         ))}
     </div>
 )
+
+const TextTestimonial: React.FC<{ item: Testimonail, setAction: React.Dispatch<React.SetStateAction<string | null>>, setSelectedtestimonial: React.Dispatch<React.SetStateAction<Testimonail | null | undefined>>, setActiveTestimonial: React.Dispatch<React.SetStateAction<string | null>>, activeTestimonial: string | null, openAction: string | null, actions: Action[] }> = ({ item, setSelectedtestimonial, setActiveTestimonial, setAction, activeTestimonial, openAction, actions }) => {
+    const notify = () => toast.success("Coming soon")
+    return (
+        <div
+            key={item.id}
+            onClick={() => {
+                setActiveTestimonial(item.id)
+                setSelectedtestimonial(item)
+            }}
+            className="rounded-lg p-6 border border-red-100
+              shadow-sm hover:shadow-md transition-shadow"
+        >
+            <div className="flex justify-between items-center mb-3">
+                <span className="text-xs px-3 py-1 rounded-full bg-white/70 text-gray-700">
+                    {item.type}
+                </span>
+                <div className="flex gap-3 text-gray-500">
+                    <Star size={15} />
+                    <Heart size={15} />
+                </div>
+            </div>
+
+            <p className="text-sm text-gray-800 leading-relaxed">{item.message}</p>
+
+            <div className="mt-4 flex justify-between items-center text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                    <img src={item.avatar} className="w-7 h-7 rounded-full" />
+                    {item.name}
+                </div>
+                <span>{item.created_at.toString().split("T")[0]}</span>
+            </div>
+
+            <div className="mt-4 flex justify-end gap-3 relative">
+                {actions.map((action) => {
+                    const isOpen = openAction === action.id
+                    return (
+                        <div
+                            key={action.id}
+                            onClick={() => {
+                                if (!action.subActions) {
+                                    notify()
+                                    setAction(null)
+                                } else {
+                                    setAction(isOpen ? null : action.id)
+                                }
+                            }}
+                            className="text-xs flex items-center gap-1 px-3 py-2 rounded-md
+                      text-gray-600 hover:bg-white/70 transition cursor-pointer"
+                        >
+                            {action.icon}
+                            {action.name}
+                            {isOpen && action.subActions && activeTestimonial === item.id && (
+                                <ActionPopUp subAction={action.subActions} />
+                            )}
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    )
+}
+
+const VideoTestimonial: React.FC<{ item: Testimonail, setAction: React.Dispatch<React.SetStateAction<string | null>>, setSelectedtestimonial: React.Dispatch<React.SetStateAction<Testimonail | null | undefined>>, setActiveTestimonial: React.Dispatch<React.SetStateAction<string | null>>, activeTestimonial: string | null, openAction: string | null, actions: Action[] }> = ({ item, setSelectedtestimonial, setActiveTestimonial, setAction, activeTestimonial, openAction, actions }) => {
+    const videoRef = useRef<HTMLVideoElement | null>(null);
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [isHovering, setIsHovering] = useState(false);
+    const notify = () => toast.success("Coming soon")
+
+    const togglePlay = () => {
+        if (!videoRef.current) return;
+
+        if (isPlaying) {
+            videoRef.current.pause();
+            setIsPlaying(false);
+        } else {
+            videoRef.current.play();
+            setIsPlaying(true);
+        }
+    };
+
+    return (
+        <div onClick={() => {
+            setActiveTestimonial(item.id)
+            setSelectedtestimonial(item)
+        }} className="max-w-3xl mx-auto p-5 rounded-2xl shadow-xl">
+            {/* Video Wrapper */}
+            <div
+                className="relative rounded-xl overflow-hidden"
+                onMouseEnter={() => setIsHovering(true)}
+                onMouseLeave={() => setIsHovering(false)}
+            >
+                <video
+                    ref={videoRef}
+                    src={item.video_url}
+                    className="w-full h-full object-cover"
+                    onEnded={() => setIsPlaying(false)}
+                />
+
+                {/* PAUSED → Play button always visible */}
+                {!isPlaying && (
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
+                        <button
+                            onClick={togglePlay}
+                            className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-600 to-purple-700 flex items-center justify-center hover:scale-105 transition"
+                        >
+                            <Play className="w-7 h-7 text-white ml-1" />
+                        </button>
+                    </div>
+                )}
+
+                {/* PLAYING + HOVER → Pause button */}
+                {isPlaying && isHovering && (
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center transition-opacity">
+                        <button
+                            onClick={togglePlay}
+                            className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center hover:scale-105 transition"
+                        >
+                            <Pause className="w-6 h-6 text-white" />
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {/* Meta */}
+            <div className="mt-4">
+                <p className="text-gray-400 text-lg font-medium">{item.name}</p>
+                <p className="text-gray-400 text-sm">{item.email}</p>
+            </div>
+            <div className="mt-4 flex justify-end gap-3 relative">
+                {actions.map((action) => {
+                    const isOpen = openAction === action.id
+                    return (
+                        <div
+                            key={action.id}
+                            onClick={() => {
+                                if (!action.subActions) {
+                                    notify()
+                                    setAction(null)
+                                } else {
+                                    setAction(isOpen ? null : action.id)
+                                }
+                            }}
+                            className="text-xs flex items-center gap-1 px-3 py-2 rounded-md
+                      text-gray-600 hover:bg-white/70 transition cursor-pointer"
+                        >
+                            {action.icon}
+                            {action.name}
+                            {isOpen && action.subActions && activeTestimonial === item.id && (
+                                <ActionPopUp subAction={action.subActions} />
+                            )}
+                        </div>
+                    )
+                })}
+            </div>
+        </div>
+    );
+};
+
 
 export default Space
