@@ -39,6 +39,7 @@ function App() {
       </ProtectedRoute>} />
       <Route path='/t/:id' element={<Preview />} />
       <Route path='/embed/:id' element={<EmbedApp />} />
+      <Route path='/embed/v/:id' element={<EmbedApp />} />
     </Routes>
 
 
