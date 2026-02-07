@@ -136,7 +136,7 @@ const Space: React.FC = () => {
             subActions: [
                 { id: "Sub-31", name: "Get Link", icon: <Link size={14} />, action: copyToclipBoard },
                 { id: "Sub-32", name: "Embed", icon: <ImEmbed size={14} />, action: openEmbedTestiMonial },
-                { id: "Sub-33", name: "Create Image", icon: <Image size={14} /> }
+                { id: "Sub-33", name: "Create Image / Get Video", icon: <Image size={14} /> }
             ]
         },
         { id: "Action-4", icon: <Download size={14} />, name: "Download" },
