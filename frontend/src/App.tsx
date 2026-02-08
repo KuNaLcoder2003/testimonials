@@ -15,6 +15,7 @@ import Space from './pages/Space'
 import Preview from './components/Preview'
 import EmbedApp from './components/EmbedApp'
 import EmbedVideo from './components/EmbedVideo'
+import Pricing from './components/Pricing'
 
 
 function App() {
@@ -41,6 +42,9 @@ function App() {
       <Route path='/t/:id' element={<Preview />} />
       <Route path='/embed/:id' element={<EmbedApp />} />
       <Route path='/embed/v/:id' element={<EmbedVideo />} />
+      <Route path='/pricing' element={<Pricing />} />
+      <Route path='/success' element={<div>Success</div>} />
+      <Route path='/fail' element={<div>Fail</div>} />
     </Routes>
 
 
