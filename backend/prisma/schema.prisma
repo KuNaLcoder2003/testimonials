@@ -75,7 +75,10 @@ model User {
   avatar_url String @default("")
   created_at DateTime
   updated_at DateTime
+  subscription_status String @default("free")
+  space_count Int @default(0)
   spaces Space[]
+  payments Payments[]
 }
 
 model ThankYouPage {
@@ -102,4 +105,15 @@ model Embed {
   image String @default("")
   testimonial Testimonial @relation(fields: [testimonial_id] , references: [id])
   @@id([testimonial_id])
+}
+
+model Payments {
+  id String @id @default(uuid())
+  user_id String
+  description String
+  amount Int
+  stripe_id String
+  createdAt DateTime
+  updatedAt DateTime
+  user User @relation(fields: [user_id] , references: [id])
 }
