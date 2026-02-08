@@ -199,8 +199,8 @@ userRouter.post('/upgradeSubscription', authMiddleware, async (req: any, res: ex
         const stripe_response = await stripe.checkout.sessions.create({
             payment_method_types: ["card"],
             mode: "payment",
-            success_url: "http://localhost:5173/success",
-            cancel_url: "http://localhost:5173/fail",
+            success_url: "https://testimonials-smoky.vercel.app/success",
+            cancel_url: "https://testimonials-smoky.vercel.app/fail",
             line_items: [
                 {
                     price_data: {
