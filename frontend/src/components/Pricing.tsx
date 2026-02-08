@@ -70,6 +70,7 @@ const Pricing: React.FC = () => {
                     description: selectedPlan.description,
                 })
             })
+            console.log(response)
             const data = await response.json()
             if (!data || !data.valid) {
                 toast.error(data.message)
