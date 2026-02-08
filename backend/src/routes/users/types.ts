@@ -11,3 +11,11 @@ export type signin = {
     email: string
     password: string
 }
+
+export type plan = {
+    plan_name: string,
+    duration: string,
+    price: number,
+    valid_till: string,
+    description: string,
+}
