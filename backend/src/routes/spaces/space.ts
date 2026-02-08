@@ -3,9 +3,8 @@ import authMiddleware from "../../middlewares/authMiddleware.js"
 import prisma from "../../prisma.js";
 import multer from "multer"
 import uploadAsset from "../../cloudinary.js"
-import { buffer } from "node:stream/consumers";
 const storage = multer.memoryStorage()
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage, limits: { fileSize: 2000000 } })
 
 const spaceRouter = express.Router()
 
@@ -28,6 +27,20 @@ spaceRouter.post('/newSpace', authMiddleware, upload.fields([
                 valid: false
             })
         }
+        const user = await prisma.user.findFirst({
+            where: {
+                id: userId
+            }
+        })
+        if (!user) {
+            throw new Error("User not found")
+        }
+        if (user.space_count == 3 && user.subscription_status != "paid") {
+            res.status(403).json({
+                message: "For creating more spaces , please upgrade your current subscription plan"
+            })
+            return
+        }
         const spaceFile = files.space_image?.[0]
         const thankYouFile = files.thank_you_page_image?.[0]
         if (!spaceFile || !thankYouFile) {
@@ -46,14 +59,6 @@ spaceRouter.post('/newSpace', authMiddleware, upload.fields([
         }
 
         const response = await prisma.$transaction(async (tx) => {
-            const user = await tx.user.findFirst({
-                where: {
-                    id: userId
-                }
-            })
-            if (!user) {
-                throw new Error("User not found")
-            }
             const new_space = await tx.space.create({
                 data: {
                     space_image: cloud_response_1.url,
