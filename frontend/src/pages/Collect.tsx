@@ -138,6 +138,7 @@ const VideoRecordingPopUp: React.FC<{ closeModal: React.Dispatch<React.SetStateA
 
             // Now we initailaize an array that has Blob's (file-like object of immutable, raw data) of media data , which will be provided on onDataAvailable event of MediaRecorder
             let streamData: Blob[] = []
+            // pushing data(Blob) in the array
             recorder.ondataavailable = ((event: BlobEvent) => {
                 streamData.push(event.data)
             })
