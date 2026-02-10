@@ -241,9 +241,4 @@ userRouter.post('/upgradeSubscription', authMiddleware, async (req: any, res: ex
         })
     }
 })
-
-
-
-
-
 export default userRouter
