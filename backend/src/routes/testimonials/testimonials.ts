@@ -372,4 +372,12 @@ testiMonialRouter.post('/createEmbed', authMiddleware, async (req: express.Reque
         })
     }
 })
+
+testiMonialRouter.delete('/:testimonialId', authMiddleware, async (req: express.Request, res: express.Response) => {
+    try {
+
+    } catch (error) {
+
+    }
+})
 export default testiMonialRouter
