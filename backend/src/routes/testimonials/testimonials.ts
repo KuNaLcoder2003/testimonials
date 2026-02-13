@@ -375,7 +375,13 @@ testiMonialRouter.post('/createEmbed', authMiddleware, async (req: express.Reque
 
 testiMonialRouter.delete('/:testimonialId', authMiddleware, async (req: express.Request, res: express.Response) => {
     try {
-
+        const testimonialId = req.params.testimonialId
+        if (!testimonialId) {
+            return res.status(400).json({
+                message: "Bad request",
+                valid: false
+            })
+        }
     } catch (error) {
 
     }
