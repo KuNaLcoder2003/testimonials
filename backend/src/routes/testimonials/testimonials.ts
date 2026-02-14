@@ -382,7 +382,33 @@ testiMonialRouter.delete('/:testimonialId', authMiddleware, async (req: express.
                 valid: false
             })
         }
+
+        const response = await prisma.$transaction(async (tx) => {
+            const deleted = await tx.testimonial.delete({
+                where: {
+                    id: testimonialId
+                }
+            })
+
+            return { deleted }
+        })
+        if (!response || !response.deleted) {
+            res.status(403).json({
+                message: "Unable to delete the testimonial at the moment",
+                valid: false
+            })
+        }
+        res.status(200).json({
+            message: "Sucessfully delted the testtimonial",
+            valid: true,
+        })
     } catch (error) {
+        console.log(error)
+        res.status(500).json({
+            error: error,
+            message: "Sonmething went wrong",
+            valid: false,
+        })
 
     }
 })
