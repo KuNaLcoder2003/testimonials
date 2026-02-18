@@ -412,4 +412,12 @@ testiMonialRouter.delete('/:testimonialId', authMiddleware, async (req: express.
 
     }
 })
+
+testiMonialRouter.get("/download", authMiddleware, async (req: express.Request, res: express.Response) => {
+    try {
+
+    } catch (error) {
+
+    }
+})
 export default testiMonialRouter
