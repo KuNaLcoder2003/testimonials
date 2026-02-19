@@ -415,9 +415,28 @@ testiMonialRouter.delete('/:testimonialId', authMiddleware, async (req: express.
 
 testiMonialRouter.get("/download", authMiddleware, async (req: express.Request, res: express.Response) => {
     try {
-
+        const userId = "req.id"
+        const response = await prisma.$transaction(async (tx) => {
+            const testimonials = tx.testimonial.findMany({})
+            return { testimonials }
+        })
+        if (!response || !response.testimonials) {
+            res.status(403).json({
+                message: "Unablen to fetch testimonials at the moment",
+                valid: false,
+            })
+            return
+        }
+        res.status(200).json({
+            testimonials: response.testimonials,
+            valid: true,
+        })
     } catch (error) {
-
+        console.log(error)
+        res.status(500).json({
+            message: "Something went wrong",
+            valid: false
+        })
     }
 })
 export default testiMonialRouter
